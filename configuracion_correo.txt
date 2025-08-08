@@ -1,0 +1,83 @@
+# ========================================
+# CONFIGURACIÓN DE CORREO ELECTRÓNICO
+# Restaurante GYZ
+# ========================================
+
+# PASO 1: Crear archivo .env en la raíz del proyecto
+# Crea un archivo llamado ".env" (sin extensión) en el mismo directorio que manage.py
+
+# PASO 2: Copiar estas variables al archivo .env
+
+# Configuración básica de Django
+SECRET_KEY=tu-clave-secreta-super-segura-aqui
+DEBUG=True
+
+# Configuración de correo electrónico para Gmail
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=tu_correo@gmail.com
+EMAIL_HOST_PASSWORD=tu_contraseña_de_aplicacion
+DEFAULT_FROM_EMAIL=noreply@restaurante-gyz.com
+
+# ========================================
+# CONFIGURACIONES PARA OTROS PROVEEDORES
+# ========================================
+
+# Para Outlook/Hotmail:
+# EMAIL_HOST=smtp-mail.outlook.com
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+
+# Para Yahoo:
+# EMAIL_HOST=smtp.mail.yahoo.com
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+
+# Para servidor SMTP personalizado:
+# EMAIL_HOST=tu-servidor-smtp.com
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+
+# ========================================
+# INSTRUCCIONES IMPORTANTES
+# ========================================
+
+# PARA GMAIL:
+# 1. Activa la verificación en dos pasos en tu cuenta de Google
+# 2. Ve a: https://myaccount.google.com/security
+# 3. En "Verificación en dos pasos", busca "Contraseñas de aplicaciones"
+# 4. Genera una nueva contraseña de aplicación para "Correo"
+# 5. Usa esa contraseña (16 caracteres) en EMAIL_HOST_PASSWORD
+
+# PARA OUTLOOK:
+# 1. Ve a la configuración de seguridad de tu cuenta Microsoft
+# 2. Activa la verificación en dos pasos
+# 3. Genera una contraseña de aplicación
+
+# EJEMPLO DE CONFIGURACIÓN COMPLETA:
+# SECRET_KEY=django-insecure-abc123xyz789
+# DEBUG=True
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+# EMAIL_HOST_USER=mirestaurante@gmail.com
+# EMAIL_HOST_PASSWORD=abcdefghijklmnop
+# DEFAULT_FROM_EMAIL=noreply@restaurante-gyz.com
+
+# ========================================
+# VERIFICAR QUE FUNCIONA
+# ========================================
+# 1. Guarda el archivo .env
+# 2. Reinicia el servidor de Django
+# 3. Regístrate en tu página web
+# 4. Deberías recibir un correo de bienvenida
+
+# ========================================
+# SOLUCIÓN DE PROBLEMAS
+# ========================================
+# Si los correos no se envían:
+# 1. Verifica que las credenciales sean correctas
+# 2. Asegúrate de usar contraseña de aplicación (no la normal)
+# 3. Revisa la consola de Django para errores
+# 4. Verifica que la carpeta de spam no tenga los correos 

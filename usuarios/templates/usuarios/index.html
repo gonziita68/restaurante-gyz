@@ -1,0 +1,261 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Inicio - Restaurante GYZ{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Bienvenido a Restaurante GYZ
+                </h1>
+                <p class="lead mb-4">
+                    Descubre la mejor experiencia gastronómica con nuestros platos únicos 
+                    preparados con ingredientes frescos y técnicas culinarias tradicionales.
+                </p>
+                {% if not user.is_authenticated %}
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'usuarios:registro' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Registrarse
+                        </a>
+                        <a href="{% url 'usuarios:login' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="d-flex gap-3">
+                        <a href="#menu" class="btn btn-light btn-lg">
+                            <i class="fas fa-utensils me-2"></i>Ver Menú
+                        </a>
+                        <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-utensils" style="font-size: 8rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Características -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="fw-bold">¿Por qué elegirnos?</h2>
+                <p class="text-muted">Descubre lo que nos hace especiales</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-leaf text-success mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="card-title">Ingredientes Frescos</h5>
+                        <p class="card-text">
+                            Utilizamos solo los ingredientes más frescos y de la más alta calidad 
+                            para garantizar el mejor sabor en cada plato.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-star text-warning mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="card-title">Experiencia Única</h5>
+                        <p class="card-text">
+                            Nuestro equipo de chefs expertos crea experiencias culinarias 
+                            únicas que deleitan todos tus sentidos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-heart text-danger mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="card-title">Atención Personalizada</h5>
+                        <p class="card-text">
+                            Recibimos a cada cliente como si fuera parte de nuestra familia, 
+                            brindando un servicio cálido y personalizado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Menú Destacado -->
+<section id="menu" class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="fw-bold">Platos Destacados</h2>
+                <p class="text-muted">Nuestros platos más populares</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-drumstick-bite text-primary mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="card-title">Pollo a la Parrilla</h5>
+                        <p class="card-text">Pollo marinado con hierbas frescas y especias especiales.</p>
+                        <span class="badge bg-primary">$15.99</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-fish text-info mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="card-title">Salmón Asado</h5>
+                        <p class="card-text">Salmón fresco con salsa de limón y hierbas aromáticas.</p>
+                        <span class="badge bg-primary">$22.99</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-hamburger text-warning mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="card-title">Hamburguesa Gourmet</h5>
+                        <p class="card-text">Hamburguesa con carne premium y ingredientes frescos.</p>
+                        <span class="badge bg-primary">$12.99</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-pizza-slice text-danger mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="card-title">Pizza Artesanal</h5>
+                        <p class="card-text">Pizza con masa artesanal y ingredientes de primera calidad.</p>
+                        <span class="badge bg-primary">$18.99</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonios -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="fw-bold">Lo que dicen nuestros clientes</h2>
+                <p class="text-muted">Experiencias reales de nuestros comensales</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p class="card-text">
+                            "Excelente comida y servicio. El ambiente es muy acogedor y los platos están deliciosos."
+                        </p>
+                        <h6 class="card-title">María González</h6>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p class="card-text">
+                            "La mejor experiencia gastronómica que he tenido. Definitivamente volveré."
+                        </p>
+                        <h6 class="card-title">Carlos Rodríguez</h6>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p class="card-text">
+                            "Platos únicos y sabores increíbles. El personal es muy amable y profesional."
+                        </p>
+                        <h6 class="card-title">Ana Martínez</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contacto -->
+<section id="contacto" class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h3 class="mb-4">Contáctanos</h3>
+                <p class="mb-4">
+                    ¿Tienes alguna pregunta o quieres hacer una reserva? 
+                    No dudes en contactarnos.
+                </p>
+                <div class="mb-3">
+                    <i class="fas fa-map-marker-alt me-3"></i>
+                    <span>123 Calle Principal, Ciudad</span>
+                </div>
+                <div class="mb-3">
+                    <i class="fas fa-phone me-3"></i>
+                    <span>(123) 456-7890</span>
+                </div>
+                <div class="mb-3">
+                    <i class="fas fa-envelope me-3"></i>
+                    <span>info@restaurantegyz.com</span>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <h3 class="mb-4">Horarios</h3>
+                <div class="row">
+                    <div class="col-6">
+                        <p><strong>Lunes - Viernes:</strong><br>12:00 PM - 10:00 PM</p>
+                    </div>
+                    <div class="col-6">
+                        <p><strong>Sábado - Domingo:</strong><br>11:00 AM - 11:00 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

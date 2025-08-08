@@ -1,0 +1,144 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Mi Perfil - Restaurante GYZ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-edit me-2"></i>Mi Perfil
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="mb-3">
+                                <i class="fas fa-user-circle text-primary" style="font-size: 5rem;"></i>
+                            </div>
+                            <h5>{{ user.first_name|default:user.username }}</h5>
+                            <p class="text-muted">Miembro desde {{ user.fecha_registro|date:"F Y" }}</p>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-user me-1"></i>Nombre de usuario
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.username }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-envelope me-1"></i>Correo electrónico
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.email }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-user me-1"></i>Nombre
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.first_name|default:"No especificado" }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-user me-1"></i>Apellidos
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.last_name|default:"No especificado" }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-phone me-1"></i>Teléfono
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.telefono|default:"No especificado" }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-calendar me-1"></i>Fecha de nacimiento
+                                    </label>
+                                    <p class="form-control-plaintext">
+                                        {{ user.fecha_nacimiento|date:"d/m/Y"|default:"No especificado" }}
+                                    </p>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Dirección
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.direccion|default:"No especificado" }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-calendar-check me-1"></i>Fecha de registro
+                                    </label>
+                                    <p class="form-control-plaintext">{{ user.fecha_registro|date:"d/m/Y H:i" }}</p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-clock me-1"></i>Último acceso
+                                    </label>
+                                    <p class="form-control-plaintext">
+                                        {{ user.ultimo_acceso|date:"d/m/Y H:i"|default:"Nunca" }}
+                                    </p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-toggle-on me-1"></i>Estado de cuenta
+                                    </label>
+                                    <p class="form-control-plaintext">
+                                        {% if user.is_active %}
+                                            <span class="badge bg-success">Activa</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactiva</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-users me-1"></i>Grupos
+                                    </label>
+                                    <p class="form-control-plaintext">
+                                        {% if user.groups.all %}
+                                            {% for group in user.groups.all %}
+                                                <span class="badge bg-primary me-1">{{ group.name }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">Sin grupos</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'usuarios:index' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-home me-2"></i>Volver al Inicio
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'usuarios:logout' %}" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
