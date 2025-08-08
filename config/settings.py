@@ -14,7 +14,7 @@ SECRET_KEY = config('SECRET_KEY', default='tu-clave-secreta-aqui')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 INSTALLED_APPS = [
@@ -91,6 +91,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
+# Media files (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -124,9 +128,9 @@ BRAND_LOGO_URL = config('BRAND_LOGO_URL', default='')
 BRAND_SUPPORT_EMAIL = config('BRAND_SUPPORT_EMAIL', default=DEFAULT_FROM_EMAIL)
 
 # URLs para reset de contraseña
-LOGIN_URL = '/usuarios/login/'
-LOGIN_REDIRECT_URL = '/usuarios/'
-LOGOUT_REDIRECT_URL = '/usuarios/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Celery / Redis
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
