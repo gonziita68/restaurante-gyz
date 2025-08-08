@@ -16,6 +16,39 @@ from django.urls import reverse
 THROTTLE_SECONDS = 300  # 5 minutos
 
 
+def _enqueue_email(*, to_email: str, subject: str, template: str, context: dict, purpose: str) -> None:
+    """Encola el envío con Celery si es posible; si falla, ejecuta localmente.
+    Usa ejecución local directa cuando CELERY_TASK_ALWAYS_EAGER=True.
+    """
+    if getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+        # Ejecuta sin broker (modo eager/local)
+        send_email_task.apply(kwargs={
+            'to_email': to_email,
+            'subject': subject,
+            'template': template,
+            'context': context,
+            'purpose': purpose,
+        })
+        return
+    try:
+        send_email_task.delay(
+            to_email=to_email,
+            subject=subject,
+            template=template,
+            context=context,
+            purpose=purpose,
+        )
+    except Exception:
+        # Fallback si no hay broker o hay error de conexión
+        send_email_task.apply(kwargs={
+            'to_email': to_email,
+            'subject': subject,
+            'template': template,
+            'context': context,
+            'purpose': purpose,
+        })
+
+
 def registro_usuario(request):
     """Vista para registro de usuarios con verificación por correo"""
     if request.method == 'POST':
@@ -43,8 +76,8 @@ def registro_usuario(request):
                 'support_email': getattr(settings, 'BRAND_SUPPORT_EMAIL', settings.DEFAULT_FROM_EMAIL),
                 'subject': 'Verifica tu cuenta - Restaurante GYZ',
             }
-            # Enviar asíncrono
-            send_email_task.delay(
+            # Enviar asíncrono con fallback
+            _enqueue_email(
                 to_email=user.email,
                 subject='Verifica tu cuenta - Restaurante GYZ',
                 template='usuarios/emails/verificacion_cuenta.html',
@@ -156,7 +189,7 @@ def password_reset_confirm(request, uidb64, token):
             form = SetPasswordForm(usuario, request.POST)
             if form.is_valid():
                 form.save()
-                # Enviar correo de confirmación (asíncrono)
+                # Enviar correo de confirmación (asíncrono con fallback)
                 ctx = {
                     'usuario': usuario,
                     'nombre_restaurante': getattr(settings, 'SITE_NAME', 'Restaurante GYZ'),
@@ -166,7 +199,7 @@ def password_reset_confirm(request, uidb64, token):
                     'support_email': getattr(settings, 'BRAND_SUPPORT_EMAIL', settings.DEFAULT_FROM_EMAIL),
                     'subject': 'Contraseña Cambiada Exitosamente - Restaurante GYZ',
                 }
-                send_email_task.delay(
+                _enqueue_email(
                     to_email=usuario.email,
                     subject='Contraseña Cambiada Exitosamente - Restaurante GYZ',
                     template='usuarios/emails/password_cambiado.html',
@@ -198,7 +231,7 @@ def activar_cuenta(request, uidb64, token):
         if not usuario.is_active:
             usuario.is_active = True
             usuario.save(update_fields=['is_active'])
-            # Enviar bienvenida (asíncrono)
+            # Enviar bienvenida (asíncrono con fallback)
             ctx = {
                 'usuario': usuario,
                 'nombre_restaurante': getattr(settings, 'SITE_NAME', 'Restaurante GYZ'),
@@ -208,7 +241,7 @@ def activar_cuenta(request, uidb64, token):
                 'support_email': getattr(settings, 'BRAND_SUPPORT_EMAIL', settings.DEFAULT_FROM_EMAIL),
                 'subject': 'Bienvenido a Restaurante GYZ - Registro Exitoso',
             }
-            send_email_task.delay(
+            _enqueue_email(
                 to_email=usuario.email,
                 subject='Bienvenido a Restaurante GYZ - Registro Exitoso',
                 template='usuarios/emails/registro_exitoso.html',
@@ -254,7 +287,7 @@ def reenviar_verificacion(request):
                 'support_email': getattr(settings, 'BRAND_SUPPORT_EMAIL', settings.DEFAULT_FROM_EMAIL),
                 'subject': 'Verifica tu cuenta - Restaurante GYZ',
             }
-            send_email_task.delay(
+            _enqueue_email(
                 to_email=usuario.email,
                 subject='Verifica tu cuenta - Restaurante GYZ',
                 template='usuarios/emails/verificacion_cuenta.html',

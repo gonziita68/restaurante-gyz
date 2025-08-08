@@ -17,6 +17,11 @@ def _brand_context():
     }
 
 
+def _resolve_sender() -> str:
+    sender = getattr(settings, 'EMAIL_HOST_USER', '') or getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+    return sender or 'webmaster@localhost'
+
+
 def enviar_correo_registro_exitoso(usuario):
     """
     Envía un correo de bienvenida cuando un usuario se registra exitosamente
@@ -31,7 +36,7 @@ def enviar_correo_registro_exitoso(usuario):
         }
         mensaje_html = render_to_string('usuarios/emails/registro_exitoso.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+        remitente = _resolve_sender()
         send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
@@ -59,7 +64,7 @@ def enviar_correo_recuperacion_password(usuario, request):
         }
         mensaje_html = render_to_string('usuarios/emails/recuperacion_password.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+        remitente = _resolve_sender()
         send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
@@ -81,7 +86,7 @@ def enviar_correo_password_cambiado(usuario):
         }
         mensaje_html = render_to_string('usuarios/emails/password_cambiado.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+        remitente = _resolve_sender()
         send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
@@ -109,7 +114,7 @@ def enviar_correo_verificacion_cuenta(usuario, request):
         }
         mensaje_html = render_to_string('usuarios/emails/verificacion_cuenta.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+        remitente = _resolve_sender()
         send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
