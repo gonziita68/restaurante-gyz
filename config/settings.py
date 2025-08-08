@@ -112,7 +112,9 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@restaurante-gyz.com')
+# Usar como remitente por defecto el usuario de Gmail si no se especifica otro
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=config('EMAIL_HOST_USER', default=''))
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # URLs para reset de contraseña
 LOGIN_URL = '/usuarios/login/'

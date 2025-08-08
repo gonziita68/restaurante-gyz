@@ -25,10 +25,11 @@ def enviar_correo_registro_exitoso(usuario):
         mensaje_texto = strip_tags(mensaje_html)
         
         # Enviar el correo
+        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
         send_mail(
             asunto,
             mensaje_texto,
-            settings.DEFAULT_FROM_EMAIL,
+            remitente,
             [usuario.email],
             html_message=mensaje_html,
             fail_silently=False,
@@ -69,10 +70,11 @@ def enviar_correo_recuperacion_password(usuario, request):
         mensaje_texto = strip_tags(mensaje_html)
         
         # Enviar el correo
+        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
         send_mail(
             asunto,
             mensaje_texto,
-            settings.DEFAULT_FROM_EMAIL,
+            remitente,
             [usuario.email],
             html_message=mensaje_html,
             fail_silently=False,
@@ -100,10 +102,11 @@ def enviar_correo_password_cambiado(usuario):
         mensaje_texto = strip_tags(mensaje_html)
         
         # Enviar el correo
+        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
         send_mail(
             asunto,
             mensaje_texto,
-            settings.DEFAULT_FROM_EMAIL,
+            remitente,
             [usuario.email],
             html_message=mensaje_html,
             fail_silently=False,
