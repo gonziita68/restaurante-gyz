@@ -127,3 +127,25 @@ BRAND_SUPPORT_EMAIL = config('BRAND_SUPPORT_EMAIL', default=DEFAULT_FROM_EMAIL)
 LOGIN_URL = '/usuarios/login/'
 LOGIN_REDIRECT_URL = '/usuarios/'
 LOGOUT_REDIRECT_URL = '/usuarios/'
+
+# Celery / Redis
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=CELERY_BROKER_URL)
+CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=False, cast=bool)
+CELERY_TASK_TIME_LIMIT = config('CELERY_TASK_TIME_LIMIT', default=60, cast=int)
+
+# Cache (para throttling)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-gyz-cache',
+    }
+}
+
+# Sentry (opcional)
+try:
+    import sentry_sdk
+    if dsn := config('SENTRY_DSN', default=''):
+        sentry_sdk.init(dsn=dsn, traces_sample_rate=float(config('SENTRY_TRACES_SAMPLE_RATE', default=0.0)))
+except Exception:
+    pass

@@ -57,3 +57,34 @@ class PerfilUsuario(models.Model):
     
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
+
+class EmailLog(models.Model):
+    PURPOSE_CHOICES = [
+        ('verification', 'Verification'),
+        ('welcome', 'Welcome'),
+        ('password_reset', 'Password Reset'),
+        ('password_changed', 'Password Changed'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('queued', 'Queued'),
+        ('sent', 'Sent'),
+        ('error', 'Error'),
+    ]
+    user = models.ForeignKey(Usuario, null=True, blank=True, on_delete=models.SET_NULL, related_name='email_logs')
+    to_email = models.EmailField()
+    subject = models.CharField(max_length=255)
+    template = models.CharField(max_length=255, blank=True)
+    purpose = models.CharField(max_length=32, choices=PURPOSE_CHOICES, default='other')
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='queued')
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Registro de Email'
+        verbose_name_plural = 'Registros de Email'
+
+    def __str__(self) -> str:
+        return f"{self.get_purpose_display()} → {self.to_email} [{self.status}]"

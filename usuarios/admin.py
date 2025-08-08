@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, PerfilUsuario
+from .models import Usuario, PerfilUsuario, EmailLog
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
@@ -56,3 +56,9 @@ class PerfilUsuarioAdmin(admin.ModelAdmin):
             'fields': ('avatar', 'biografia', 'sitio_web')
         }),
     )
+
+@admin.register(EmailLog)
+class EmailLogAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'user', 'to_email', 'purpose', 'status', 'subject')
+    list_filter = ('status', 'purpose', 'created_at')
+    search_fields = ('to_email', 'subject', 'error_message')
