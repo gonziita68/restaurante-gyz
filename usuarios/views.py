@@ -7,29 +7,30 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from .forms import RegistroUsuarioForm, LoginUsuarioForm, PasswordResetForm, SetPasswordForm
 from .models import Usuario
-from .emails import enviar_correo_registro_exitoso, enviar_correo_recuperacion_password, enviar_correo_password_cambiado
+from .emails import enviar_correo_registro_exitoso, enviar_correo_recuperacion_password, enviar_correo_password_cambiado, enviar_correo_verificacion_cuenta
 
 def registro_usuario(request):
-    """Vista para registro de usuarios"""
+    """Vista para registro de usuarios con verificación por correo"""
     if request.method == 'POST':
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # Enviar correo de bienvenida
-            if enviar_correo_registro_exitoso(user):
-                messages.success(request, '¡Registro exitoso! Te hemos enviado un correo de bienvenida.')
+            user = form.save(commit=False)
+            # El usuario queda inactivo hasta verificar el correo
+            user.is_active = False
+            user.save()
+            # Enviar correo de verificación
+            if enviar_correo_verificacion_cuenta(user, request):
+                messages.success(request, '¡Registro exitoso! Te enviamos un correo para verificar tu cuenta.')
             else:
-                messages.success(request, '¡Registro exitoso! Bienvenido a nuestro restaurante.')
-                messages.warning(request, 'No pudimos enviar el correo de bienvenida, pero tu cuenta está activa.')
-            
-            login(request, user)
-            return redirect('usuarios:index')
+                messages.warning(request, 'Tu cuenta fue creada pero no pudimos enviar el correo de verificación. Intenta reenviar desde tu perfil.')
+            return redirect('usuarios:login')
         else:
             messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
         form = RegistroUsuarioForm()
     
     return render(request, 'usuarios/registro.html', {'form': form})
+
 
 def login_usuario(request):
     """Vista para login de usuarios"""
@@ -53,6 +54,9 @@ def login_usuario(request):
                     user = None
             
             if user is not None:
+                if not user.is_active:
+                    messages.error(request, 'Tu cuenta aún no está verificada. Revisa tu correo o solicita reenvío.')
+                    return redirect('usuarios:login')
                 login(request, user)
                 user.actualizar_ultimo_acceso()
                 messages.success(request, f'¡Bienvenido de vuelta, {user.first_name or user.username}!')
@@ -63,6 +67,7 @@ def login_usuario(request):
         form = LoginUsuarioForm()
     
     return render(request, 'usuarios/login.html', {'form': form})
+
 
 def logout_usuario(request):
     """Vista para logout de usuarios"""
@@ -136,4 +141,26 @@ def password_reset_confirm(request, uidb64, token):
     else:
         messages.error(request, 
             'El enlace de restablecimiento es inválido o ha expirado.')
-        return redirect('usuarios:password_reset_request') 
+        return redirect('usuarios:password_reset_request')
+
+
+def activar_cuenta(request, uidb64, token):
+    """Activa la cuenta de usuario tras hacer clic en el enlace de verificación."""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        usuario = Usuario.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist):
+        usuario = None
+    
+    if usuario is not None and default_token_generator.check_token(usuario, token):
+        if not usuario.is_active:
+            usuario.is_active = True
+            usuario.save(update_fields=['is_active'])
+            enviar_correo_registro_exitoso(usuario)
+            messages.success(request, 'Tu cuenta ha sido verificada y activada. Ahora puedes iniciar sesión.')
+        else:
+            messages.info(request, 'Tu cuenta ya estaba verificada.')
+        return redirect('usuarios:login')
+    else:
+        messages.error(request, 'Enlace de verificación inválido o expirado.')
+        return redirect('usuarios:login') 
