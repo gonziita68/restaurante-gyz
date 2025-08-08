@@ -78,6 +78,18 @@ class RegistroUsuarioForm(UserCreationForm):
         self.fields['password1'].help_text = 'Tu contraseña debe contener al menos 8 caracteres.'
         self.fields['password2'].help_text = 'Ingresa la misma contraseña que antes, para verificación.'
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data.get('first_name', '')
+        user.last_name = self.cleaned_data.get('last_name', '')
+        user.telefono = self.cleaned_data.get('telefono')
+        user.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+        user.direccion = self.cleaned_data.get('direccion')
+        if commit:
+            user.save()
+        return user
+
 class LoginUsuarioForm(AuthenticationForm):
     """Formulario para login de usuarios"""
     

@@ -1,0 +1,11 @@
+{% extends 'usuarios/emails/base_email.html' %}
+{% block content %}
+<h2>Verifica tu cuenta</h2>
+<p>Hola {{ usuario.first_name|default:usuario.username }},</p>
+<p>Gracias por registrarte en {{ site_name }}. Para activar tu cuenta, haz clic en el siguiente botón:</p>
+<p>
+  <a class="btn" href="{{ activar_url }}" target="_blank" rel="noopener">Activar mi cuenta</a>
+</p>
+<p class="muted">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+<p class="muted">{{ activar_url }}</p>
+{% endblock %}

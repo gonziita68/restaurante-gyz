@@ -1,14 +1,14 @@
 """
 Django settings for tu_proyecto project.
 """
-from decouple import config
 from pathlib import Path
-from decouple import config
+from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
+config = AutoConfig(search_path=str(Path(__file__).resolve().parent.parent))
 SECRET_KEY = config('SECRET_KEY', default='tu-clave-secreta-aqui')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -106,13 +106,22 @@ SESSION_COOKIE_SECURE = False  # True en producción con HTTPS
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 # Configuración de correo electrónico
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@restaurante-gyz.com')
+# Usar como remitente por defecto el usuario de Gmail si no se especifica otro
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=config('EMAIL_HOST_USER', default=''))
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
+
+# Variables de marca para emails
+SITE_NAME = config('SITE_NAME', default='Restaurante GYZ')
+BRAND_PRIMARY_COLOR = config('BRAND_PRIMARY_COLOR', default='#10b981')
+BRAND_LOGO_URL = config('BRAND_LOGO_URL', default='')
+BRAND_SUPPORT_EMAIL = config('BRAND_SUPPORT_EMAIL', default=DEFAULT_FROM_EMAIL)
 
 # URLs para reset de contraseña
 LOGIN_URL = '/usuarios/login/'
