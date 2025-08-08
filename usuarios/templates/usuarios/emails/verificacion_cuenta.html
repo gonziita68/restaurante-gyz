@@ -1,27 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Verificación de cuenta</title>
-  <style>
-    body { font-family: Arial, sans-serif; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .btn { display: inline-block; background: #10b981; color: #fff; padding: 12px 18px; text-decoration: none; border-radius: 6px; }
-    .muted { color: #6b7280; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Verifica tu cuenta</h2>
-    <p>Hola {{ usuario.first_name|default:usuario.username }},</p>
-    <p>Gracias por registrarte en {{ nombre_restaurante }}. Para activar tu cuenta, por favor haz clic en el siguiente botón:</p>
-    <p>
-      <a class="btn" href="{{ activar_url }}" target="_blank" rel="noopener">Activar mi cuenta</a>
-    </p>
-    <p>Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
-    <p class="muted">{{ activar_url }}</p>
-    <p>Si no fuiste tú quien realizó este registro, puedes ignorar este mensaje.</p>
-    <p>— Equipo de {{ nombre_restaurante }}</p>
-  </div>
-</body>
-</html>
+{% extends 'usuarios/emails/base_email.html' %}
+{% block content %}
+<h2>Verifica tu cuenta</h2>
+<p>Hola {{ usuario.first_name|default:usuario.username }},</p>
+<p>Gracias por registrarte en {{ site_name }}. Para activar tu cuenta, haz clic en el siguiente botón:</p>
+<p>
+  <a class="btn" href="{{ activar_url }}" target="_blank" rel="noopener">Activar mi cuenta</a>
+</p>
+<p class="muted">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+<p class="muted">{{ activar_url }}</p>
+{% endblock %}

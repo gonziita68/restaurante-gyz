@@ -115,6 +115,13 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 # Usar como remitente por defecto el usuario de Gmail si no se especifica otro
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=config('EMAIL_HOST_USER', default=''))
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
+
+# Variables de marca para emails
+SITE_NAME = config('SITE_NAME', default='Restaurante GYZ')
+BRAND_PRIMARY_COLOR = config('BRAND_PRIMARY_COLOR', default='#10b981')
+BRAND_LOGO_URL = config('BRAND_LOGO_URL', default='')
+BRAND_SUPPORT_EMAIL = config('BRAND_SUPPORT_EMAIL', default=DEFAULT_FROM_EMAIL)
 
 # URLs para reset de contraseña
 LOGIN_URL = '/usuarios/login/'

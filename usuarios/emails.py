@@ -8,32 +8,31 @@ from django.utils.encoding import force_bytes
 from django.urls import reverse
 
 
+def _brand_context():
+    return {
+        'site_name': getattr(settings, 'SITE_NAME', 'Restaurante GYZ'),
+        'primary_color': getattr(settings, 'BRAND_PRIMARY_COLOR', '#10b981'),
+        'logo_url': getattr(settings, 'BRAND_LOGO_URL', ''),
+        'support_email': getattr(settings, 'BRAND_SUPPORT_EMAIL', settings.DEFAULT_FROM_EMAIL),
+    }
+
+
 def enviar_correo_registro_exitoso(usuario):
     """
     Envía un correo de bienvenida cuando un usuario se registra exitosamente
     """
     try:
         asunto = 'Bienvenido a Restaurante GYZ - Registro Exitoso'
-        
-        # Renderizar el template HTML
-        mensaje_html = render_to_string('usuarios/emails/registro_exitoso.html', {
+        ctx = {
             'usuario': usuario,
-            'nombre_restaurante': 'Restaurante GYZ'
-        })
-        
-        # Versión en texto plano
+            'nombre_restaurante': 'Restaurante GYZ',
+            **_brand_context(),
+            'subject': asunto,
+        }
+        mensaje_html = render_to_string('usuarios/emails/registro_exitoso.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        
-        # Enviar el correo
         remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
-        send_mail(
-            asunto,
-            mensaje_texto,
-            remitente,
-            [usuario.email],
-            html_message=mensaje_html,
-            fail_silently=False,
-        )
+        send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
         print(f"Error enviando correo de registro: {e}")
@@ -45,40 +44,23 @@ def enviar_correo_recuperacion_password(usuario, request):
     Envía un correo para recuperación de contraseña
     """
     try:
-        # Generar token para el reset
         token = default_token_generator.make_token(usuario)
         uid = urlsafe_base64_encode(force_bytes(usuario.pk))
-        
-        # Construir la URL de reset
         reset_url = request.build_absolute_uri(
-            reverse('usuarios:password_reset_confirm', kwargs={
-                'uidb64': uid,
-                'token': token
-            })
+            reverse('usuarios:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
         )
-        
         asunto = 'Recuperación de Contraseña - Restaurante GYZ'
-        
-        # Renderizar el template HTML
-        mensaje_html = render_to_string('usuarios/emails/recuperacion_password.html', {
+        ctx = {
             'usuario': usuario,
             'reset_url': reset_url,
-            'nombre_restaurante': 'Restaurante GYZ'
-        })
-        
-        # Versión en texto plano
+            'nombre_restaurante': 'Restaurante GYZ',
+            **_brand_context(),
+            'subject': asunto,
+        }
+        mensaje_html = render_to_string('usuarios/emails/recuperacion_password.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        
-        # Enviar el correo
         remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
-        send_mail(
-            asunto,
-            mensaje_texto,
-            remitente,
-            [usuario.email],
-            html_message=mensaje_html,
-            fail_silently=False,
-        )
+        send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
         print(f"Error enviando correo de recuperación: {e}")
@@ -91,26 +73,16 @@ def enviar_correo_password_cambiado(usuario):
     """
     try:
         asunto = 'Contraseña Cambiada Exitosamente - Restaurante GYZ'
-        
-        # Renderizar el template HTML
-        mensaje_html = render_to_string('usuarios/emails/password_cambiado.html', {
+        ctx = {
             'usuario': usuario,
-            'nombre_restaurante': 'Restaurante GYZ'
-        })
-        
-        # Versión en texto plano
+            'nombre_restaurante': 'Restaurante GYZ',
+            **_brand_context(),
+            'subject': asunto,
+        }
+        mensaje_html = render_to_string('usuarios/emails/password_cambiado.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
-        
-        # Enviar el correo
         remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
-        send_mail(
-            asunto,
-            mensaje_texto,
-            remitente,
-            [usuario.email],
-            html_message=mensaje_html,
-            fail_silently=False,
-        )
+        send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
         print(f"Error enviando correo de confirmación: {e}")
@@ -128,21 +100,17 @@ def enviar_correo_verificacion_cuenta(usuario, request):
             reverse('usuarios:activar_cuenta', kwargs={'uidb64': uid, 'token': token})
         )
         asunto = 'Verifica tu cuenta - Restaurante GYZ'
-        mensaje_html = render_to_string('usuarios/emails/verificacion_cuenta.html', {
+        ctx = {
             'usuario': usuario,
             'activar_url': activar_url,
-            'nombre_restaurante': 'Restaurante GYZ'
-        })
+            'nombre_restaurante': 'Restaurante GYZ',
+            **_brand_context(),
+            'subject': asunto,
+        }
+        mensaje_html = render_to_string('usuarios/emails/verificacion_cuenta.html', ctx)
         mensaje_texto = strip_tags(mensaje_html)
         remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
-        send_mail(
-            asunto,
-            mensaje_texto,
-            remitente,
-            [usuario.email],
-            html_message=mensaje_html,
-            fail_silently=False,
-        )
+        send_mail(asunto, mensaje_texto, remitente, [usuario.email], html_message=mensaje_html, fail_silently=False)
         return True
     except Exception as e:
         print(f"Error enviando correo de verificación: {e}")

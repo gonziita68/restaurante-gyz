@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>{{ subject|default:site_name }}</title>
+  <style>
+    /* Reset */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    table { border-collapse: collapse !important; }
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+    /* Container */
+    .email-container { width: 100%; background: #f5f7fb; padding: 24px; }
+    .content { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .header { padding: 20px; background: #ffffff; border-bottom: 1px solid #eef2f7; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; color: #111827; font-size: 18px; }
+    .brand img { height: 32px; width: auto; display: block; }
+    .body { padding: 24px; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; font-size: 16px; }
+    .btn { display: inline-block; background: {{ primary_color }}; color: #ffffff !important; text-decoration: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .footer { padding: 16px 24px; border-top: 1px solid #eef2f7; color: #6b7280; font-size: 13px; background: #ffffff; }
+
+    @media (prefers-color-scheme: dark) {
+      .email-container { background: #0b0f16 !important; }
+      .content { background: #111827 !important; }
+      .header { background: #111827 !important; border-bottom-color: #1f2937 !important; }
+      .body { color: #e5e7eb !important; }
+      .footer { background: #111827 !important; border-top-color: #1f2937 !important; color: #9ca3af !important; }
+      .brand { color: #f9fafb !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <table role="presentation" width="100%">
+      <tr>
+        <td>
+          <div class="content">
+            <div class="header">
+              <div class="brand">
+                {% if logo_url %}<img src="{{ logo_url }}" alt="{{ site_name }}" />{% endif %}
+                <span>{{ site_name }}</span>
+              </div>
+            </div>
+            <div class="body">
+              {% block preheader %}{% endblock %}
+              {% block content %}{% endblock %}
+              {% block secondary %}{% endblock %}
+              <p class="muted">Si no fuiste tú quien inició esta acción, puedes ignorar este mensaje.</p>
+            </div>
+            <div class="footer">
+              <p>¿Necesitas ayuda? Escríbenos a <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+              <p class="muted">© {{ site_name }}. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
