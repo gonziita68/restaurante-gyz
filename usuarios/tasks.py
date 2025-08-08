@@ -6,6 +6,12 @@ from django.utils import timezone
 from .models import EmailLog, Usuario
 from django.template.loader import render_to_string
 
+
+def _resolve_sender() -> str:
+    sender = getattr(settings, 'EMAIL_HOST_USER', '') or getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+    return sender or 'webmaster@localhost'
+
+
 @shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=5, retry_kwargs={'max_retries': 3})
 def send_email_task(self, *, to_email: str, subject: str, template: str, context: dict, purpose: str = 'other'):
     log = EmailLog.objects.create(
@@ -19,7 +25,7 @@ def send_email_task(self, *, to_email: str, subject: str, template: str, context
     try:
         html = render_to_string(template, context)
         text = strip_tags(html)
-        remitente = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+        remitente = _resolve_sender()
         sent = send_mail(subject, text, remitente, [to_email], html_message=html, fail_silently=False)
         log.status = 'sent' if sent else 'error'
         log.sent_at = timezone.now()
