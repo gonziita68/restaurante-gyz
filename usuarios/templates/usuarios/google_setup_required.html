@@ -1,0 +1,182 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Configuración de Google OAuth Requerida - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .setup-container {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 0;
+    }
+    
+    .setup-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    .setup-header {
+        margin-bottom: 2rem;
+    }
+    
+    .setup-header h1 {
+        color: #333;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .setup-header p {
+        color: #666;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    
+    .setup-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #4285f4;
+    }
+    
+    .setup-steps {
+        text-align: left;
+        margin: 2rem 0;
+    }
+    
+    .setup-steps h3 {
+        color: #333;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .setup-steps ol {
+        color: #666;
+        line-height: 1.8;
+    }
+    
+    .setup-steps li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .setup-steps strong {
+        color: #333;
+    }
+    
+    .setup-actions {
+        margin-top: 2rem;
+    }
+    
+    .btn-google {
+        background: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-google:hover {
+        background: #3367d6;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .note {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="setup-container">
+    <div class="setup-card">
+        <div class="setup-header">
+            <div class="setup-icon">🔧</div>
+            <h1>Configuración Requerida</h1>
+            <p>Para usar el login con Google, necesitas configurar las credenciales de OAuth</p>
+        </div>
+        
+        <div class="note">
+            <strong>Nota:</strong> Esta es una página temporal. Una vez configures Google OAuth, el login social funcionará automáticamente.
+        </div>
+        
+        <div class="setup-steps">
+            <h3>📋 Pasos para Configurar Google OAuth:</h3>
+            <ol>
+                <li><strong>Crear proyecto en Google Cloud Console:</strong> Ve a <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                <li><strong>Habilitar API de Google+:</strong> En "APIs y servicios" > "Biblioteca"</li>
+                <li><strong>Crear credenciales OAuth 2.0:</strong> En "APIs y servicios" > "Credenciales"</li>
+                <li><strong>Configurar URIs autorizados:</strong>
+                    <ul>
+                        <li>URI de origen: <code>http://localhost:8000</code></li>
+                        <li>URI de redirección: <code>http://localhost:8000/accounts/google/login/callback/</code></li>
+                    </ul>
+                </li>
+                <li><strong>Configurar en Django Admin:</strong> Ve a <a href="/admin/" target="_blank">Django Admin</a> y crea una "Social Application"</li>
+            </ol>
+        </div>
+        
+        <div class="setup-actions">
+            <a href="https://console.cloud.google.com/" target="_blank" class="btn-google">
+                <i class="fab fa-google me-2"></i>Ir a Google Cloud Console
+            </a>
+            <a href="/admin/" target="_blank" class="btn-secondary">
+                <i class="fas fa-cog me-2"></i>Django Admin
+            </a>
+            <a href="{% url 'usuarios:registro' %}" class="btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver al Registro
+            </a>
+        </div>
+        
+        <div class="mt-4">
+            <p class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Mientras tanto, puedes usar el registro normal con email y contraseña
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva Confirmada - Restaurante GYZ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .reserva-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .detail-value {
+            color: #6c757d;
+        }
+        .code-box {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #495057;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">✅</div>
+            <h1>¡Reserva Confirmada!</h1>
+            <p>Tu reserva ha sido confirmada exitosamente</p>
+        </div>
+
+        <p>Hola <strong>{{ reserva.nombre_cliente }}</strong>,</p>
+        
+        <p>Nos complace confirmar que tu reserva ha sido procesada exitosamente. Aquí tienes todos los detalles:</p>
+
+        <div class="reserva-details">
+            <div class="detail-row">
+                <span class="detail-label">📅 Fecha:</span>
+                <span class="detail-value">{{ fecha_reserva }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">🕐 Hora:</span>
+                <span class="detail-value">{{ hora_reserva }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">👥 Comensales:</span>
+                <span class="detail-value">{{ reserva.numero_comensales }} persona{{ reserva.numero_comensales|pluralize }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">🪑 Mesa:</span>
+                <span class="detail-value">{{ reserva.mesa.numero }} ({{ reserva.mesa.tipo_mesa.nombre }})</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">📍 Ubicación:</span>
+                <span class="detail-value">{{ reserva.mesa.get_ubicacion_display }}</span>
+            </div>
+            {% if reserva.ocasion_especial %}
+            <div class="detail-row">
+                <span class="detail-label">🎉 Ocasión:</span>
+                <span class="detail-value">{{ reserva.get_ocasion_especial_display }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="code-box">
+            🔢 Código de Reserva: {{ codigo_corto }}
+        </div>
+
+        {% if reserva.solicitudes_especiales %}
+        <div class="info-box">
+            <strong>📝 Solicitudes especiales:</strong><br>
+            {{ reserva.solicitudes_especiales }}
+        </div>
+        {% endif %}
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="http://localhost:8000/reservas/consultar/" class="btn">Consultar Mi Reserva</a>
+            <a href="http://localhost:8000/" class="btn">Visitar Nuestro Sitio</a>
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Información importante:</strong><br>
+            • Llega 10 minutos antes de tu hora de reserva<br>
+            • Si necesitas cancelar, hazlo con al menos 4 horas de anticipación<br>
+            • Para cualquier cambio, contáctanos al (123) 456-7890
+        </div>
+
+        <div class="footer">
+            <p><strong>Restaurante GYZ</strong></p>
+            <p>📍 Dirección del restaurante<br>
+            📞 (123) 456-7890<br>
+            ✉️ info@restaurantegyz.com</p>
+            <p><small>Este email fue enviado el {{ fecha_actual }}</small></p>
+        </div>
+    </div>
+</body>
+</html>

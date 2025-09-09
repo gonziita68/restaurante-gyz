@@ -77,6 +77,29 @@ class RegistroUsuarioForm(UserCreationForm):
         self.fields['username'].help_text = 'Requerido. 150 caracteres o menos. Solo letras, dígitos y @/./+/-/_'
         self.fields['password1'].help_text = 'Tu contraseña debe contener al menos 8 caracteres.'
         self.fields['password2'].help_text = 'Ingresa la misma contraseña que antes, para verificación.'
+    
+    def clean_email(self):
+        """Validación personalizada para el email"""
+        email = self.cleaned_data.get('email')
+        if email:
+            # Verificar si el email ya existe
+            if Usuario.objects.filter(email=email).exists():
+                raise forms.ValidationError(
+                    'Este correo electrónico ya está registrado. '
+                    'Si olvidaste tu contraseña, puedes recuperarla desde la página de inicio de sesión.'
+                )
+        return email
+    
+    def clean_username(self):
+        """Validación personalizada para el username"""
+        username = self.cleaned_data.get('username')
+        if username:
+            # Verificar si el username ya existe
+            if Usuario.objects.filter(username=username).exists():
+                raise forms.ValidationError(
+                    'Este nombre de usuario ya está en uso. Por favor, elige otro.'
+                )
+        return username
 
 class LoginUsuarioForm(AuthenticationForm):
     """Formulario para login de usuarios"""

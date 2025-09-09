@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60" viewBox="0 0 200 60">
+  <!-- Fondo del logo -->
+  <rect width="200" height="60" rx="5" fill="#2c3e50" />
+  
+  <!-- Texto principal -->
+  <text x="100" y="30" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#ffffff">RESTAURANTE</text>
+  <text x="100" y="50" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#e74c3c">GYZ</text>
+  
+  <!-- Ícono de cubiertos -->
+  <g transform="translate(20, 30) scale(0.5)">
+    <!-- Tenedor -->
+    <path d="M10,0 L10,40 M5,0 L5,20 M15,0 L15,20 M0,0 L0,20 M0,20 C0,25 10,25 10,20" stroke="#ecf0f1" stroke-width="3" fill="none" />
+    
+    <!-- Cuchillo -->
+    <path d="M30,0 C40,0 40,10 40,20 L40,40 L30,40 L30,20 C30,10 20,5 20,0 Z" stroke="#ecf0f1" stroke-width="1" fill="#ecf0f1" />
+  </g>
+  
+  <!-- Ícono de plato -->
+  <g transform="translate(160, 30) scale(0.5)">
+    <circle cx="0" cy="0" r="15" stroke="#ecf0f1" stroke-width="3" fill="none" />
+    <circle cx="0" cy="0" r="8" stroke="#e74c3c" stroke-width="2" fill="none" />
+  </g>
+</svg>

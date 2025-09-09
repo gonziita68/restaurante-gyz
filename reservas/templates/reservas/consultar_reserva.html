@@ -1,0 +1,256 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Consultar Reserva - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .consultar-container {
+        padding: 2rem 0;
+    }
+    
+    .busqueda-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 3rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .resultado-section {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .estado-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .estado-pendiente { background: #ffc107; color: #000; }
+    .estado-confirmada { background: #007bff; color: #fff; }
+    .estado-en_curso { background: #28a745; color: #fff; }
+    .estado-completada { background: #198754; color: #fff; }
+    .estado-cancelada { background: #dc3545; color: #fff; }
+    .estado-no_show { background: #6c757d; color: #fff; }
+    
+    .info-item {
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: bold;
+        color: #495057;
+        min-width: 150px;
+        display: inline-block;
+    }
+    
+    .codigo-reserva {
+        background: #e9ecef;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-family: monospace;
+        font-size: 1.1em;
+    }
+    
+    .sin-resultado {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container consultar-container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Sección de búsqueda -->
+            <div class="busqueda-section">
+                <h2><i class="fas fa-search"></i> Consultar Reserva</h2>
+                <p class="mb-4">Ingresa el código de tu reserva para ver los detalles</p>
+                
+                <form method="get" class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" 
+                                   name="codigo" 
+                                   id="codigo" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Ej: 12345678-1234-1234-1234-123456789abc"
+                                   value="{{ codigo_busqueda }}"
+                                   required>
+                            <button type="submit" class="btn btn-light btn-lg">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                        <small class="form-text text-light mt-2">
+                            El código de reserva se envía por email al momento de crear la reserva
+                        </small>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Resultado de la búsqueda -->
+            {% if reserva %}
+                <div class="resultado-section">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h3><i class="fas fa-calendar-check"></i> Detalles de la Reserva</h3>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="estado-badge estado-{{ reserva.estado }}">
+                                {{ reserva.get_estado_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <span class="info-label">Código de Reserva:</span>
+                                <span class="codigo-reserva">{{ reserva.codigo_reserva }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Cliente:</span>
+                                {{ reserva.nombre_cliente }}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Teléfono:</span>
+                                {{ reserva.telefono_cliente }}
+                            </div>
+                            {% if reserva.email_cliente %}
+                            <div class="info-item">
+                                <span class="info-label">Email:</span>
+                                {{ reserva.email_cliente }}
+                            </div>
+                            {% endif %}
+                            <div class="info-item">
+                                <span class="info-label">Fecha:</span>
+                                {{ reserva.fecha_reserva|date:"d/m/Y" }}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Hora:</span>
+                                {{ reserva.hora_reserva|time:"H:i" }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <span class="info-label">Mesa:</span>
+                                {{ reserva.mesa.numero }} ({{ reserva.mesa.tipo_mesa.nombre }})
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Ubicación:</span>
+                                {{ reserva.mesa.get_ubicacion_display }}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Comensales:</span>
+                                {{ reserva.numero_comensales }} persona{{ reserva.numero_comensales|pluralize }}
+                            </div>
+                            {% if reserva.ocasion_especial %}
+                            <div class="info-item">
+                                <span class="info-label">Ocasión:</span>
+                                {{ reserva.get_ocasion_especial_display }}
+                            </div>
+                            {% endif %}
+                            <div class="info-item">
+                                <span class="info-label">Duración:</span>
+                                {{ reserva.duracion_estimada }} minutos
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Creada:</span>
+                                {{ reserva.fecha_creacion|date:"d/m/Y H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if reserva.solicitudes_especiales %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="info-item">
+                                <span class="info-label">Solicitudes especiales:</span>
+                                {{ reserva.solicitudes_especiales }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Tiempo restante para reservas futuras -->
+                    {% if reserva.estado == 'pendiente' or reserva.estado == 'confirmada' %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            {% with tiempo=reserva.tiempo_para_reserva %}
+                                {% if tiempo.total_seconds > 0 %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <strong>Tiempo restante:</strong>
+                                        {% if tiempo.days > 0 %}
+                                            {{ tiempo.days }} día{{ tiempo.days|pluralize }}, 
+                                            {{ tiempo.seconds|floatformat:0|div:3600|floatformat:0 }} hora{{ tiempo.seconds|floatformat:0|div:3600|floatformat:0|pluralize }}
+                                        {% else %}
+                                            {% with horas=tiempo.seconds|floatformat:0|div:3600 %}
+                                                {% if horas > 0 %}
+                                                    {{ horas }} hora{{ horas|pluralize }}, 
+                                                    {% with minutos=tiempo.seconds|floatformat:0|div:60|add:"-3600"|floatformat:0 %}
+                                                        {{ minutos }} minuto{{ minutos|pluralize }}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    {% with minutos=tiempo.seconds|floatformat:0|div:60 %}
+                                                        {{ minutos }} minuto{{ minutos|pluralize }}
+                                                    {% endwith %}
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <strong>Esta reserva ya ha vencido.</strong>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Acciones -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <a href="{% url 'reservas:disponibilidad' %}" class="btn btn-primary">
+                                <i class="fas fa-calendar-plus"></i> Nueva Reserva
+                            </a>
+                            <a href="{% url 'usuarios:index' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home"></i> Volver al Inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% elif codigo_busqueda %}
+                <div class="sin-resultado">
+                    <i class="fas fa-search fa-5x mb-3 text-muted"></i>
+                    <h4>Reserva no encontrada</h4>
+                    <p>No se encontró una reserva con el código <strong>{{ codigo_busqueda }}</strong></p>
+                    <p class="text-muted">Verifica que el código sea correcto o contacta con el restaurante.</p>
+                    <a href="{% url 'reservas:disponibilidad' %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Hacer Nueva Reserva
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Exitoso - Restaurante GYZ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .pago-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .detail-value {
+            color: #6c757d;
+        }
+        .transaction-box {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #155724;
+        }
+        .amount-box {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #495057;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0c5460;
+        }
+        .security-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">💳</div>
+            <h1>¡Pago Exitoso!</h1>
+            <p>Tu transacción ha sido procesada correctamente</p>
+        </div>
+
+        <p>Hola,</p>
+        
+        <p>Nos complace confirmar que tu pago ha sido procesado exitosamente. Aquí tienes todos los detalles de la transacción:</p>
+
+        <div class="amount-box">
+            💰 ${{ pago.monto|floatformat:2 }}
+        </div>
+
+        <div class="pago-details">
+            <div class="detail-row">
+                <span class="detail-label">💳 Tipo de tarjeta:</span>
+                <span class="detail-value">{{ pago.tipo_tarjeta }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">🔢 Últimos dígitos:</span>
+                <span class="detail-value">**** **** **** {{ pago.ultimos_digitos }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">📝 Descripción:</span>
+                <span class="detail-value">{{ pago.descripcion }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">✅ Código de autorización:</span>
+                <span class="detail-value">{{ pago.codigo_autorizacion }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">📅 Fecha de procesamiento:</span>
+                <span class="detail-value">{{ fecha_procesamiento }}</span>
+            </div>
+        </div>
+
+        <div class="transaction-box">
+            🔢 Número de Transacción: {{ pago.numero_transaccion }}
+        </div>
+
+        <div class="security-box">
+            <strong>🔒 Información de seguridad:</strong><br>
+            • Tu información de pago está protegida con encriptación SSL<br>
+            • No almacenamos los datos completos de tu tarjeta<br>
+            • Esta transacción cumple con los estándares PCI DSS
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Información importante:</strong><br>
+            • Guarda este email como comprobante de pago<br>
+            • El número de transacción es tu referencia para consultas<br>
+            • Si tienes alguna pregunta, contáctanos al (123) 456-7890
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="http://localhost:8000/" class="btn">Visitar Nuestro Sitio</a>
+            <a href="http://localhost:8000/pedidos/mis-pedidos/" class="btn">Ver Mis Pedidos</a>
+        </div>
+
+        <div class="footer">
+            <p><strong>Restaurante GYZ</strong></p>
+            <p>📍 Dirección del restaurante<br>
+            📞 (123) 456-7890<br>
+            ✉️ info@restaurantegyz.com</p>
+            <p><small>Este email fue enviado el {{ fecha_procesamiento }}</small></p>
+        </div>
+    </div>
+</body>
+</html>

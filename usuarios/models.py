@@ -13,6 +13,9 @@ class Usuario(AbstractUser):
     fecha_registro = models.DateTimeField(auto_now_add=True)
     ultimo_acceso = models.DateTimeField(blank=True, null=True)
     
+    # Hacer el email único
+    email = models.EmailField(unique=True, verbose_name='Correo electrónico')
+    
     # Resolver conflictos de related_name
     groups = models.ManyToManyField(
         'auth.Group',

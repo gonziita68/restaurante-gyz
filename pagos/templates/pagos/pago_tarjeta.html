@@ -1,0 +1,322 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Pago con Tarjeta - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pago-container {
+        padding: 2rem 0;
+    }
+    
+    .pago-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .pago-form {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .resumen-pago {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .card-preview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-preview::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        transform: rotate(45deg);
+    }
+    
+    .card-number {
+        font-family: monospace;
+        font-size: 1.5em;
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+    }
+    
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-holder {
+        font-size: 1.1em;
+    }
+    
+    .card-expiry {
+        font-size: 1.1em;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        flex: 1;
+    }
+    
+    .security-badge {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: #155724;
+    }
+    
+    .amount-display {
+        font-size: 2em;
+        font-weight: bold;
+        color: #28a745;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .payment-methods {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .payment-method {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method:hover {
+        border-color: #28a745;
+        transform: translateY(-2px);
+    }
+    
+    .payment-method.active {
+        border-color: #28a745;
+        background: #f8fff9;
+    }
+    
+    .payment-icon {
+        font-size: 2em;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pago-container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="pago-header">
+                <h2><i class="fas fa-credit-card"></i> Pago con Tarjeta</h2>
+                <p>Procesa tu pago de forma segura</p>
+            </div>
+            
+            <!-- Resumen del pago -->
+            <div class="resumen-pago">
+                <h4><i class="fas fa-receipt"></i> Resumen del Pago</h4>
+                <div class="amount-display">
+                    ${{ monto|floatformat:2 }}
+                </div>
+                <p class="text-muted text-center">{{ descripcion }}</p>
+            </div>
+            
+            <!-- Métodos de pago -->
+            <div class="payment-methods">
+                <div class="payment-method active">
+                    <div class="payment-icon">💳</div>
+                    <div>Tarjeta de Crédito</div>
+                </div>
+                <div class="payment-method">
+                    <div class="payment-icon">🏦</div>
+                    <div>Transferencia</div>
+                </div>
+                <div class="payment-method">
+                    <div class="payment-icon">💵</div>
+                    <div>Efectivo</div>
+                </div>
+            </div>
+            
+            <!-- Vista previa de la tarjeta -->
+            <div class="card-preview">
+                <div class="card-number" id="cardPreview">
+                    **** **** **** ****
+                </div>
+                <div class="card-details">
+                    <div class="card-holder" id="holderPreview">
+                        NOMBRE APELLIDO
+                    </div>
+                    <div class="card-expiry" id="expiryPreview">
+                        MM/YY
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulario de pago -->
+            <div class="pago-form">
+                <h4><i class="fas fa-lock"></i> Información de Pago</h4>
+                
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Pago Seguro:</strong> Tu información está protegida con encriptación SSL de 256 bits
+                </div>
+                
+                <form method="post" id="paymentForm">
+                    {% csrf_token %}
+                    
+                    <!-- Número de tarjeta -->
+                    <div class="form-group">
+                        <label for="{{ form.numero_tarjeta.id_for_label }}">{{ form.numero_tarjeta.label }}</label>
+                        {{ form.numero_tarjeta }}
+                        {% if form.numero_tarjeta.errors %}
+                            <div class="text-danger">{{ form.numero_tarjeta.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Nombre del titular -->
+                    <div class="form-group">
+                        <label for="{{ form.nombre_titular.id_for_label }}">{{ form.nombre_titular.label }}</label>
+                        {{ form.nombre_titular }}
+                        {% if form.nombre_titular.errors %}
+                            <div class="text-danger">{{ form.nombre_titular.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Fecha de vencimiento y CVV -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.fecha_vencimiento.id_for_label }}">{{ form.fecha_vencimiento.label }}</label>
+                            {{ form.fecha_vencimiento }}
+                            {% if form.fecha_vencimiento.errors %}
+                                <div class="text-danger">{{ form.fecha_vencimiento.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.cvv.id_for_label }}">{{ form.cvv.label }}</label>
+                            {{ form.cvv }}
+                            {% if form.cvv.errors %}
+                                <div class="text-danger">{{ form.cvv.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Te enviaremos el comprobante de pago a este email</small>
+                    </div>
+                    
+                    <!-- Campos ocultos -->
+                    {{ form.monto }}
+                    {{ form.descripcion }}
+                    
+                    <!-- Botón de pago -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                            <i class="fas fa-lock"></i> Procesar Pago - ${{ monto|floatformat:2 }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Información Importante</h5>
+                <ul class="mb-0">
+                    <li>Tu información de pago está protegida con encriptación SSL</li>
+                    <li>No almacenamos los datos completos de tu tarjeta</li>
+                    <li>Recibirás un comprobante por email inmediatamente</li>
+                    <li>Para consultas, contáctanos al (123) 456-7890</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Actualizar vista previa de la tarjeta
+document.getElementById('{{ form.numero_tarjeta.id_for_label }}').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\s/g, '');
+    let formatted = value.replace(/(\d{4})/g, '$1 ').trim();
+    document.getElementById('cardPreview').textContent = formatted || '**** **** **** ****';
+});
+
+document.getElementById('{{ form.nombre_titular.id_for_label }}').addEventListener('input', function(e) {
+    let value = e.target.value.toUpperCase() || 'NOMBRE APELLIDO';
+    document.getElementById('holderPreview').textContent = value;
+});
+
+document.getElementById('{{ form.fecha_vencimiento.id_for_label }}').addEventListener('input', function(e) {
+    let value = e.target.value || 'MM/YY';
+    document.getElementById('expiryPreview').textContent = value;
+});
+
+// Formatear número de tarjeta
+document.getElementById('{{ form.numero_tarjeta.id_for_label }}').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    let formatted = value.replace(/(\d{4})/g, '$1 ').trim();
+    e.target.value = formatted.substring(0, 19);
+});
+
+// Formatear fecha de vencimiento
+document.getElementById('{{ form.fecha_vencimiento.id_for_label }}').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value.substring(0, 5);
+});
+
+// Formatear CVV
+document.getElementById('{{ form.cvv.id_for_label }}').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    e.target.value = value.substring(0, 4);
+});
+
+// Deshabilitar botón durante el envío
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+});
+</script>
+{% endblock %}

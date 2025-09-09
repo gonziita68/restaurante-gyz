@@ -1,0 +1,416 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Checkout - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        padding: 2rem 0;
+    }
+    
+    .checkout-form {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .resumen-pedido {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .item-resumen {
+        border-bottom: 1px solid #e9ecef;
+        padding: 0.75rem 0;
+    }
+    
+    .item-resumen:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-finalizar {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1em;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-finalizar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .paso-checkout {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .numero-paso {
+        background: #667eea;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-weight: bold;
+    }
+    
+    .metodo-pago {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .metodo-pago:hover {
+        border-color: #667eea;
+    }
+    
+    .metodo-pago.selected {
+        border-color: #667eea;
+        background: #f8f9fa;
+    }
+    
+    .entrega-option {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .entrega-option:hover {
+        border-color: #667eea;
+    }
+    
+    .entrega-option.selected {
+        border-color: #667eea;
+        background: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container checkout-container">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-credit-card"></i> Finalizar Pedido</h2>
+            <hr>
+        </div>
+    </div>
+    
+    <form method="post" id="checkout-form">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Formulario de checkout -->
+            <div class="col-lg-8">
+                <div class="checkout-form">
+                    <!-- Paso 1: Tipo de entrega -->
+                    <div class="paso-checkout">
+                        <div class="numero-paso">1</div>
+                        <h5 class="mb-0">Tipo de Entrega</h5>
+                    </div>
+                    
+                    <div class="row">
+                        {% for value, label in tipos_entrega %}
+                            <div class="col-md-6">
+                                <div class="entrega-option" onclick="seleccionarEntrega('{{ value }}')">
+                                    <input type="radio" name="tipo_entrega" value="{{ value }}" 
+                                           id="entrega_{{ value }}" 
+                                           {% if value == 'delivery' %}checked{% endif %}>
+                                    <label for="entrega_{{ value }}" class="mb-0">
+                                        <strong>{{ label }}</strong>
+                                        {% if value == 'delivery' %}
+                                            <br><small class="text-muted">Entrega a domicilio</small>
+                                        {% elif value == 'recogida' %}
+                                            <br><small class="text-muted">Retiro en local</small>
+                                        {% else %}
+                                            <br><small class="text-muted">Servicio en mesa</small>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Paso 2: Información de entrega -->
+                    <div class="paso-checkout">
+                        <div class="numero-paso">2</div>
+                        <h5 class="mb-0">Información de Entrega</h5>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="telefono_contacto">Teléfono de contacto *</label>
+                                <input type="tel" class="form-control" name="telefono_contacto" 
+                                       id="telefono_contacto" required 
+                                       value="{{ user.telefono|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="numero_mesa_div" style="display: none;">
+                            <div class="form-group">
+                                <label for="numero_mesa">Número de mesa</label>
+                                <input type="number" class="form-control" name="numero_mesa" 
+                                       id="numero_mesa" min="1" max="50">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="direccion_entrega_div">
+                        <div class="form-group">
+                            <label for="direccion_entrega">Dirección de entrega *</label>
+                            <textarea class="form-control" name="direccion_entrega" 
+                                      id="direccion_entrega" rows="3" required 
+                                      placeholder="Ingresa tu dirección completa...">{{ user.direccion|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notas_entrega">Notas adicionales</label>
+                        <textarea class="form-control" name="notas_entrega" 
+                                  id="notas_entrega" rows="2" 
+                                  placeholder="Instrucciones especiales, referencias, etc."></textarea>
+                    </div>
+                    
+                    <!-- Paso 3: Método de pago -->
+                    <div class="paso-checkout">
+                        <div class="numero-paso">3</div>
+                        <h5 class="mb-0">Método de Pago</h5>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="metodo-pago" onclick="seleccionarPago('efectivo')">
+                                <input type="radio" name="metodo_pago" value="efectivo" 
+                                       id="pago_efectivo" checked>
+                                <label for="pago_efectivo" class="mb-0">
+                                    <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+                                    <br><strong>Efectivo</strong>
+                                    <br><small class="text-muted">Pago al recibir</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metodo-pago" onclick="seleccionarPago('tarjeta')">
+                                <input type="radio" name="metodo_pago" value="tarjeta" 
+                                       id="pago_tarjeta">
+                                <label for="pago_tarjeta" class="mb-0">
+                                    <i class="fas fa-credit-card fa-2x text-primary"></i>
+                                    <br><strong>Tarjeta</strong>
+                                    <br><small class="text-muted">Crédito/Débito</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="metodo-pago" onclick="seleccionarPago('transferencia')">
+                                <input type="radio" name="metodo_pago" value="transferencia" 
+                                       id="pago_transferencia">
+                                <label for="pago_transferencia" class="mb-0">
+                                    <i class="fas fa-university fa-2x text-info"></i>
+                                    <br><strong>Transferencia</strong>
+                                    <br><small class="text-muted">Bancaria</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metodo-pago" onclick="seleccionarPago('online')">
+                                <input type="radio" name="metodo_pago" value="online" 
+                                       id="pago_online">
+                                <label for="pago_online" class="mb-0">
+                                    <i class="fas fa-globe fa-2x text-warning"></i>
+                                    <br><strong>Pago Online</strong>
+                                    <br><small class="text-muted">PayPal, Stripe</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen del pedido -->
+            <div class="col-lg-4">
+                <div class="resumen-pedido">
+                    <h5 class="mb-3">Resumen del Pedido</h5>
+                    
+                    <!-- Items -->
+                    {% for item in items %}
+                        <div class="item-resumen">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.plato.nombre }}</h6>
+                                    <small class="text-muted">Cantidad: {{ item.cantidad }}</small>
+                                    
+                                    {% if item.opciones_personalizacion.exists %}
+                                        <div class="mt-1">
+                                            {% for opcion in item.opciones_personalizacion.all %}
+                                                <small class="badge bg-light">{{ opcion.nombre }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if item.instrucciones_especiales %}
+                                        <div class="mt-1">
+                                            <small class="text-muted">
+                                                <em>"{{ item.instrucciones_especiales }}"</em>
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-weight-bold">${{ item.total }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                    <hr>
+                    
+                    <!-- Totales -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>${{ carrito.subtotal }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Impuestos (10%):</span>
+                        <span>${{ carrito.total_impuestos }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Delivery:</span>
+                        <span id="costo-delivery-display">
+                            {% if carrito.costo_delivery > 0 %}
+                                ${{ carrito.costo_delivery }}
+                            {% else %}
+                                <span class="text-success">¡Gratis!</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong class="text-success">${{ carrito.total_final }}</strong>
+                    </div>
+                    
+                    <!-- Botón finalizar -->
+                    <button type="submit" class="btn btn-finalizar">
+                        <i class="fas fa-check"></i> Finalizar Pedido
+                    </button>
+                    
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-lock"></i> Tu información está protegida
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function seleccionarEntrega(tipo) {
+    // Limpiar selecciones anteriores
+    document.querySelectorAll('.entrega-option').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    // Seleccionar nueva opción
+    event.currentTarget.classList.add('selected');
+    document.getElementById(`entrega_${tipo}`).checked = true;
+    
+    // Mostrar/ocultar campos relevantes
+    const direccionDiv = document.getElementById('direccion_entrega_div');
+    const mesaDiv = document.getElementById('numero_mesa_div');
+    const direccionInput = document.getElementById('direccion_entrega');
+    const costoDeliveryDisplay = document.getElementById('costo-delivery-display');
+    
+    if (tipo === 'delivery') {
+        direccionDiv.style.display = 'block';
+        mesaDiv.style.display = 'none';
+        direccionInput.required = true;
+        costoDeliveryDisplay.innerHTML = '{% if carrito.costo_delivery > 0 %}${{ carrito.costo_delivery }}{% else %}<span class="text-success">¡Gratis!</span>{% endif %}';
+    } else if (tipo === 'mesa') {
+        direccionDiv.style.display = 'none';
+        mesaDiv.style.display = 'block';
+        direccionInput.required = false;
+        costoDeliveryDisplay.innerHTML = '<span class="text-success">N/A</span>';
+    } else {
+        direccionDiv.style.display = 'none';
+        mesaDiv.style.display = 'none';
+        direccionInput.required = false;
+        costoDeliveryDisplay.innerHTML = '<span class="text-success">N/A</span>';
+    }
+}
+
+function seleccionarPago(metodo) {
+    // Limpiar selecciones anteriores
+    document.querySelectorAll('.metodo-pago').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    // Seleccionar nueva opción
+    event.currentTarget.classList.add('selected');
+    document.getElementById(`pago_${metodo}`).checked = true;
+}
+
+// Inicializar formulario
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar estado inicial
+    seleccionarEntrega('delivery');
+    
+    // Validación del formulario
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked').value;
+        const telefono = document.getElementById('telefono_contacto').value.trim();
+        
+        if (!telefono) {
+            e.preventDefault();
+            alert('Por favor ingresa tu número de teléfono');
+            return;
+        }
+        
+        if (tipoEntrega === 'delivery') {
+            const direccion = document.getElementById('direccion_entrega').value.trim();
+            if (!direccion) {
+                e.preventDefault();
+                alert('Por favor ingresa tu dirección de entrega');
+                return;
+            }
+        }
+        
+        // Confirmar pedido
+        if (!confirm('¿Confirmas que quieres realizar este pedido?')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

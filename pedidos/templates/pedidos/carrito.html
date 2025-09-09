@@ -1,0 +1,488 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Carrito de Compras - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .carrito-container {
+        padding: 2rem 0;
+    }
+    
+    .item-carrito {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: white;
+    }
+    
+    .item-imagen {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .cantidad-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .cantidad-btn {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #dee2e6;
+        background: white;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .cantidad-btn:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+    }
+    
+    .cantidad-input {
+        width: 50px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 0.25rem;
+    }
+    
+    .resumen-carrito {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .btn-checkout {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-checkout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .carrito-vacio {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .opciones-item {
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+    
+    .precio-unitario {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    
+    .precio-total {
+        font-weight: bold;
+        color: #28a745;
+        font-size: 1.1em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container carrito-container">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-shopping-cart"></i> Tu Carrito de Compras</h2>
+            <hr>
+        </div>
+    </div>
+    
+    {% if items %}
+        <div class="row">
+            <!-- Items del carrito -->
+            <div class="col-lg-8">
+                {% for item in items %}
+                    <div class="item-carrito" data-item-id="{{ item.id }}">
+                        <div class="row align-items-center">
+                            <!-- Imagen del plato -->
+                            <div class="col-2">
+                                {% if item.plato.imagen %}
+                                    <img src="{{ item.plato.imagen.url }}" alt="{{ item.plato.nombre }}" class="item-imagen">
+                                {% else %}
+                                    <div class="item-imagen bg-light d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-utensils text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Información del plato -->
+                            <div class="col-4">
+                                <h6 class="mb-1">{{ item.plato.nombre }}</h6>
+                                <p class="text-muted small mb-1">{{ item.plato.categoria.nombre }}</p>
+                                <div class="precio-unitario">
+                                    Precio unitario: ${{ item.precio_unitario }}
+                                </div>
+                                
+                                <!-- Opciones seleccionadas -->
+                                {% if item.opciones_personalizacion.exists %}
+                                    <div class="opciones-item">
+                                        <strong>Opciones:</strong>
+                                        {% for opcion in item.opciones_personalizacion.all %}
+                                            <span class="badge bg-light">
+                                                {{ opcion.nombre }}
+                                                {% if opcion.precio_adicional > 0 %}
+                                                    (+${{ opcion.precio_adicional }})
+                                                {% endif %}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Instrucciones especiales -->
+                                {% if item.instrucciones_especiales %}
+                                    <div class="opciones-item">
+                                        <strong>Instrucciones:</strong> {{ item.instrucciones_especiales }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Controles de cantidad -->
+                            <div class="col-3">
+                                <div class="cantidad-controls">
+                                    <button class="cantidad-btn" onclick="cambiarCantidad({{ item.id }}, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="cantidad-input" 
+                                           value="{{ item.cantidad }}" 
+                                           min="1" max="10" 
+                                           id="cantidad-{{ item.id }}"
+                                           onchange="actualizarCantidad({{ item.id }})">
+                                    <button class="cantidad-btn" onclick="cambiarCantidad({{ item.id }}, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Precio total del item -->
+                            <div class="col-2">
+                                <div class="precio-total" id="total-item-{{ item.id }}">
+                                    ${{ item.total }}
+                                </div>
+                            </div>
+                            
+                            <!-- Botón eliminar -->
+                            <div class="col-1">
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="eliminarItem({{ item.id }})"
+                                        title="Eliminar del carrito">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Botones de acción -->
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <a href="{% url 'menu:menu_completo' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left"></i> Seguir comprando
+                        </a>
+                    </div>
+                    <div class="col-6 text-right">
+                        <button class="btn btn-outline-danger" onclick="limpiarCarrito()">
+                            <i class="fas fa-trash-alt"></i> Limpiar carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen del carrito -->
+            <div class="col-lg-4">
+                <div class="resumen-carrito">
+                    <h5 class="mb-3">Resumen del Pedido</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span id="subtotal-carrito">${{ carrito.subtotal }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Impuestos (10%):</span>
+                        <span id="impuestos-carrito">${{ carrito.total_impuestos }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Delivery:</span>
+                        <span id="delivery-carrito">
+                            {% if carrito.costo_delivery > 0 %}
+                                ${{ carrito.costo_delivery }}
+                            {% else %}
+                                <span class="text-success">¡Gratis!</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if carrito.subtotal < 50 and carrito.costo_delivery > 0 %}
+                        <small class="text-muted d-block mb-3">
+                            Delivery gratis en compras mayores a $50
+                        </small>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong class="text-success" id="total-carrito">${{ carrito.total_final }}</strong>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'pedidos:checkout' %}" class="btn btn-checkout">
+                                <i class="fas fa-credit-card"></i> Proceder al Pago
+                            </a>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <p class="mb-2">Para realizar el pedido debes iniciar sesión</p>
+                                <a href="{% url 'usuarios:login' %}?next={% url 'pedidos:checkout' %}" 
+                                   class="btn btn-primary btn-sm">
+                                    Iniciar Sesión
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-lock"></i> Compra segura y protegida
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="carrito-vacio">
+            <i class="fas fa-shopping-cart fa-5x mb-3"></i>
+            <h4>Tu carrito está vacío</h4>
+            <p>¡Explora nuestro delicioso menú y agrega algunos platos!</p>
+            <a href="{% url 'menu:menu_completo' %}" class="btn btn-primary">
+                <i class="fas fa-utensils"></i> Ver Menú
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cambiarCantidad(itemId, cambio) {
+    const input = document.getElementById(`cantidad-${itemId}`);
+    if (input) {
+        let nuevaCantidad = parseInt(input.value) + cambio;
+        nuevaCantidad = Math.max(1, Math.min(10, nuevaCantidad));
+        input.value = nuevaCantidad;
+        actualizarCantidad(itemId);
+    }
+}
+
+function actualizarCantidad(itemId) {
+    const cantidadInput = document.getElementById(`cantidad-${itemId}`);
+    if (!cantidadInput) {
+        console.error('No se encontró el input de cantidad para el item:', itemId);
+        return;
+    }
+    
+    const cantidad = parseInt(cantidadInput.value);
+    
+    fetch(`{% url 'pedidos:actualizar_item_carrito' 0 %}`.replace('0', itemId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({cantidad: cantidad})
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const totalItemElement = document.getElementById(`total-item-${itemId}`);
+            const subtotalElement = document.getElementById('subtotal-carrito');
+            const totalElement = document.getElementById('total-carrito');
+            
+            if (totalItemElement) {
+                totalItemElement.textContent = `$${data.item_total}`;
+            }
+            if (subtotalElement) {
+                subtotalElement.textContent = `$${data.carrito_subtotal}`;
+            }
+            if (totalElement) {
+                totalElement.textContent = `$${data.carrito_total}`;
+            }
+            
+            // Actualizar impuestos y delivery
+            actualizarResumenCarrito();
+        } else {
+            mostrarAlerta('Error: ' + (data.error || 'Error desconocido'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarAlerta('Error al actualizar el carrito', 'danger');
+    });
+}
+
+function eliminarItem(itemId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este item del carrito?')) {
+        fetch(`{% url 'pedidos:eliminar_item_carrito' 0 %}`.replace('0', itemId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+                if (itemElement) {
+                    itemElement.remove();
+                }
+                
+                const subtotalElement = document.getElementById('subtotal-carrito');
+                const totalElement = document.getElementById('total-carrito');
+                
+                if (subtotalElement) {
+                    subtotalElement.textContent = `$${data.carrito_subtotal}`;
+                }
+                if (totalElement) {
+                    totalElement.textContent = `$${data.carrito_total}`;
+                }
+                
+                // Si no quedan items, recargar la página
+                if (data.carrito_items === 0) {
+                    location.reload();
+                }
+                
+                actualizarResumenCarrito();
+            } else {
+                mostrarAlerta('Error: ' + (data.error || 'Error desconocido'), 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al eliminar el item', 'danger');
+        });
+    }
+}
+
+function limpiarCarrito() {
+    if (confirm('¿Estás seguro de que quieres limpiar todo el carrito?')) {
+        fetch('{% url "pedidos:limpiar_carrito" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                mostrarAlerta('Error: ' + (data.error || 'Error desconocido'), 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarAlerta('Error al limpiar el carrito', 'danger');
+        });
+    }
+}
+
+function actualizarResumenCarrito() {
+    fetch('{% url "pedidos:obtener_info_carrito" %}')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const impuestosElement = document.getElementById('impuestos-carrito');
+        const deliveryElement = document.getElementById('delivery-carrito');
+        
+        if (impuestosElement) {
+            impuestosElement.textContent = `$${data.taxes || 0}`;
+        }
+        
+        if (deliveryElement) {
+            const deliveryCost = parseFloat(data.delivery_cost) || 0;
+            if (deliveryCost > 0) {
+                deliveryElement.innerHTML = `$${deliveryCost}`;
+            } else {
+                deliveryElement.innerHTML = '<span class="text-success">¡Gratis!</span>';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error actualizando resumen:', error);
+    });
+}
+
+function mostrarAlerta(mensaje, tipo) {
+    const alertaDiv = document.createElement('div');
+    alertaDiv.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+    alertaDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertaDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertaDiv);
+    
+    setTimeout(() => {
+        if (alertaDiv.parentElement) {
+            alertaDiv.remove();
+        }
+    }, 5000);
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si hay elementos del carrito para actualizar
+    const itemsCarrito = document.querySelectorAll('[data-item-id]');
+    if (itemsCarrito.length > 0) {
+        actualizarResumenCarrito();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Pago Exitoso - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmacion-container {
+        padding: 2rem 0;
+    }
+    
+    .success-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 3rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .success-icon {
+        font-size: 80px;
+        margin-bottom: 1rem;
+    }
+    
+    .transaction-details {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .detail-value {
+        color: #6c757d;
+        font-family: monospace;
+    }
+    
+    .transaction-id {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        font-family: monospace;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #155724;
+        margin: 1rem 0;
+    }
+    
+    .next-steps {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .step-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+    }
+    
+    .step-number {
+        background: #28a745;
+        color: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    
+    .btn-action {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container confirmacion-container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header de éxito -->
+            <div class="success-header">
+                <div class="success-icon">✅</div>
+                <h1>¡Pago Exitoso!</h1>
+                <p>Tu transacción ha sido procesada correctamente</p>
+            </div>
+            
+            <!-- Detalles de la transacción -->
+            <div class="transaction-details">
+                <h3><i class="fas fa-receipt"></i> Detalles de la Transacción</h3>
+                
+                <div class="transaction-id">
+                    🔢 Número de Transacción: {{ transaccion_id }}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">📅 Fecha:</span>
+                    <span class="detail-value">{{ fecha|default:"Hoy" }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">💰 Monto:</span>
+                    <span class="detail-value">${{ monto|floatformat:2 }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">📧 Email:</span>
+                    <span class="detail-value">Comprobante enviado</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">🔒 Estado:</span>
+                    <span class="detail-value" style="color: #28a745; font-weight: bold;">✓ Confirmado</span>
+                </div>
+            </div>
+            
+            <!-- Próximos pasos -->
+            <div class="next-steps">
+                <h4><i class="fas fa-list-check"></i> Próximos Pasos</h4>
+                
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div>Revisa tu email para el comprobante de pago</div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div>Guarda el número de transacción como referencia</div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div>Tu pedido/reserva será procesado inmediatamente</div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div>Recibirás una confirmación adicional por email</div>
+                </div>
+            </div>
+            
+            <!-- Acciones -->
+            <div style="text-align: center; margin: 2rem 0;">
+                <a href="{% url 'usuarios:index' %}" class="btn-action">
+                    <i class="fas fa-home"></i> Volver al Inicio
+                </a>
+                
+                <a href="{% url 'pedidos:mis_pedidos' %}" class="btn-action">
+                    <i class="fas fa-receipt"></i> Ver Mis Pedidos
+                </a>
+                
+                <a href="{% url 'reservas:mis_reservas' %}" class="btn-action">
+                    <i class="fas fa-calendar-check"></i> Ver Mis Reservas
+                </a>
+                
+                <a href="{% url 'pagos:historial_pagos' %}" class="btn-action btn-secondary">
+                    <i class="fas fa-history"></i> Historial de Pagos
+                </a>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> Información Importante</h5>
+                <ul class="mb-0">
+                    <li><strong>Comprobante:</strong> Se ha enviado un email con el comprobante de pago</li>
+                    <li><strong>Referencia:</strong> Guarda el número de transacción para consultas futuras</li>
+                    <li><strong>Soporte:</strong> Si tienes alguna pregunta, contáctanos al (123) 456-7890</li>
+                    <li><strong>Seguridad:</strong> Tu información de pago está protegida y no se almacena</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

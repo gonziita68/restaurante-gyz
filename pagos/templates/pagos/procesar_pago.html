@@ -1,0 +1,574 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Procesar Pago - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pagos-container {
+        padding: 2rem 0;
+    }
+    
+    .resumen-pago {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: sticky;
+        top: 20px;
+    }
+    
+    .metodo-pago {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .metodo-pago:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .metodo-pago.selected {
+        border-color: #667eea;
+        background: #f8f9fa;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .metodo-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #667eea;
+    }
+    
+    .comision-info {
+        background: #fff3cd;
+        color: #856404;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9em;
+        margin-top: 1rem;
+    }
+    
+    .btn-pagar {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1em;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-pagar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-pagar:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .form-facturacion {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        display: none;
+    }
+    
+    .stripe-element {
+        background: white;
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loading-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+    
+    .seguridad-info {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pagos-container">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-credit-card"></i> Procesar Pago</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        {% if tipo_pago == 'pedido' %}
+                            <a href="{% url 'pedidos:mis_pedidos' %}">Mis Pedidos</a>
+                        {% else %}
+                            <a href="{% url 'reservas:mis_reservas' %}">Mis Reservas</a>
+                        {% endif %}
+                    </li>
+                    <li class="breadcrumb-item active">Procesar Pago</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Métodos de pago -->
+        <div class="col-lg-8">
+            <h4>Selecciona el método de pago</h4>
+            
+            {% for metodo in metodos_disponibles %}
+                <div class="metodo-pago" data-metodo="{{ metodo.codigo }}" onclick="seleccionarMetodo('{{ metodo.codigo }}')">
+                    <div class="row align-items-center">
+                        <div class="col-2 text-center">
+                            <i class="{{ metodo.icon }} metodo-icon"></i>
+                        </div>
+                        <div class="col-7">
+                            <h5 class="mb-1">{{ metodo.nombre }}</h5>
+                            <p class="text-muted mb-0">{{ metodo.descripcion }}</p>
+                        </div>
+                        <div class="col-3 text-right">
+                            <input type="radio" name="metodo_pago" value="{{ metodo.codigo }}" style="transform: scale(1.5);">
+                            {% if metodo.comision > 0 %}
+                                <div class="small text-muted mt-1">
+                                    +${{ metodo.comision|floatformat:2 }} comisión
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if metodo.comision > 0 %}
+                        <div class="comision-info">
+                            <i class="fas fa-info-circle"></i>
+                            Se aplicará una comisión de ${{ metodo.comision|floatformat:2 }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <!-- Área de Stripe Elements -->
+            <div id="stripe-form" style="display: none;">
+                <h5>Información de la tarjeta</h5>
+                <div id="card-element" class="stripe-element">
+                    <!-- Stripe Elements insertará el formulario aquí -->
+                </div>
+                <div id="card-errors" role="alert" class="text-danger mt-2"></div>
+            </div>
+            
+            <!-- Área de PayPal -->
+            <div id="paypal-form" style="display: none;">
+                <div id="paypal-button-container"></div>
+            </div>
+            
+            <!-- Checkbox para facturación -->
+            <div class="form-check mt-3">
+                <input type="checkbox" class="form-check-input" id="requiere_factura" onchange="toggleFacturacion()">
+                <label class="form-check-label" for="requiere_factura">
+                    Requiero factura fiscal
+                </label>
+            </div>
+            
+            <!-- Formulario de facturación -->
+            <div class="form-facturacion" id="form-facturacion">
+                <h6><i class="fas fa-file-invoice"></i> Datos para facturación</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="factura_nombre">Nombre/Razón Social *</label>
+                            <input type="text" class="form-control" id="factura_nombre" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="factura_rfc">RFC/CUIT</label>
+                            <input type="text" class="form-control" id="factura_rfc">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="factura_direccion">Dirección fiscal</label>
+                    <textarea class="form-control" id="factura_direccion" rows="2"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="factura_email">Email</label>
+                            <input type="email" class="form-control" id="factura_email" 
+                                   value="{{ user.email }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="factura_telefono">Teléfono</label>
+                            <input type="tel" class="form-control" id="factura_telefono" 
+                                   value="{{ user.telefono|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información de seguridad -->
+            <div class="seguridad-info">
+                <h6><i class="fas fa-shield-alt"></i> Tu información está protegida</h6>
+                <p class="mb-0 small">
+                    Utilizamos encriptación SSL de 256 bits y no almacenamos información de tarjetas de crédito.
+                    Todos los pagos son procesados de forma segura por nuestros proveedores certificados.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Resumen del pago -->
+        <div class="col-lg-4">
+            <div class="resumen-pago">
+                <h5><i class="fas fa-receipt"></i> Resumen del Pago</h5>
+                
+                <!-- Información del objeto -->
+                <div class="mb-3">
+                    {% if tipo_pago == 'pedido' %}
+                        <h6>Pedido #{{ objeto_pago.numero_pedido|slice:":8" }}</h6>
+                        <small>{{ objeto_pago.items.count }} item{{ objeto_pago.items.count|pluralize }} - {{ objeto_pago.get_tipo_entrega_display }}</small>
+                    {% else %}
+                        <h6>Reserva #{{ objeto_pago.codigo_reserva|slice:":8" }}</h6>
+                        <small>Mesa {{ objeto_pago.mesa.numero }} - {{ objeto_pago.fecha_reserva }} {{ objeto_pago.hora_reserva }}</small>
+                    {% endif %}
+                </div>
+                
+                <hr class="border-light">
+                
+                <!-- Desglose de montos -->
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span>${{ subtotal }}</span>
+                </div>
+                
+                {% if impuestos > 0 %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Impuestos:</span>
+                    <span>${{ impuestos }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between mb-2" id="comision-display" style="display: none !important;">
+                    <span>Comisión:</span>
+                    <span id="comision-amount">$0.00</span>
+                </div>
+                
+                <hr class="border-light">
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <strong>Total a pagar:</strong>
+                    <strong id="total-final">${{ total }}</strong>
+                </div>
+                
+                <!-- Botón de pago -->
+                <button class="btn btn-pagar" id="btn-procesar-pago" onclick="procesarPago()" disabled>
+                    <i class="fas fa-lock"></i> Selecciona un método de pago
+                </button>
+                
+                <div class="text-center mt-3">
+                    <small class="text-light">
+                        <i class="fas fa-info-circle"></i>
+                        El cargo aparecerá como "Restaurante GYZ" en tu estado de cuenta
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-content">
+        <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+        <h5>Procesando pago...</h5>
+        <p>Por favor espera mientras procesamos tu pago de forma segura.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if config.stripe_activo %}
+<script src="https://js.stripe.com/v3/"></script>
+{% endif %}
+
+<script>
+let metodoSeleccionado = null;
+let stripe = null;
+let elements = null;
+let cardElement = null;
+
+// Configuración inicial
+const config = {
+    tipo_pago: '{{ tipo_pago }}',
+    objeto_id: {{ objeto_pago.id }},
+    subtotal: {{ subtotal }},
+    impuestos: {{ impuestos }},
+    total_base: {{ total }},
+    {% if config.stripe_activo %}
+    stripe_public_key: '{{ stripe_public_key }}'
+    {% endif %}
+};
+
+// Inicializar Stripe si está disponible
+{% if config.stripe_activo %}
+document.addEventListener('DOMContentLoaded', function() {
+    stripe = Stripe(config.stripe_public_key);
+    elements = stripe.elements();
+    
+    cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                    color: '#aab7c4',
+                },
+            },
+        },
+    });
+});
+{% endif %}
+
+function seleccionarMetodo(metodo) {
+    // Limpiar selecciones anteriores
+    document.querySelectorAll('.metodo-pago').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    // Ocultar todos los formularios específicos
+    document.getElementById('stripe-form').style.display = 'none';
+    document.getElementById('paypal-form').style.display = 'none';
+    
+    // Seleccionar nuevo método
+    document.querySelector(`[data-metodo="${metodo}"]`).classList.add('selected');
+    document.querySelector(`input[value="${metodo}"]`).checked = true;
+    metodoSeleccionado = metodo;
+    
+    // Actualizar total con comisión
+    actualizarTotal(metodo);
+    
+    // Mostrar formulario específico si es necesario
+    if (metodo === 'stripe') {
+        document.getElementById('stripe-form').style.display = 'block';
+        if (cardElement) {
+            cardElement.mount('#card-element');
+        }
+    } else if (metodo === 'paypal') {
+        document.getElementById('paypal-form').style.display = 'block';
+        // Aquí inicializarías PayPal
+    }
+    
+    // Habilitar botón de pago
+    const btnPagar = document.getElementById('btn-procesar-pago');
+    btnPagar.disabled = false;
+    btnPagar.innerHTML = `<i class="fas fa-credit-card"></i> Pagar ${getTotalFinal()}`;
+}
+
+function actualizarTotal(metodo) {
+    const metodos = {{ metodos_disponibles|safe }};
+    const metodoData = metodos.find(m => m.codigo === metodo);
+    const comision = metodoData ? metodoData.comision : 0;
+    
+    const comisionDisplay = document.getElementById('comision-display');
+    const comisionAmount = document.getElementById('comision-amount');
+    const totalFinal = document.getElementById('total-final');
+    
+    if (comision > 0) {
+        comisionDisplay.style.display = 'flex';
+        comisionAmount.textContent = `$${comision.toFixed(2)}`;
+        totalFinal.textContent = `$${(config.total_base + comision).toFixed(2)}`;
+    } else {
+        comisionDisplay.style.display = 'none';
+        totalFinal.textContent = `$${config.total_base.toFixed(2)}`;
+    }
+}
+
+function getTotalFinal() {
+    return document.getElementById('total-final').textContent;
+}
+
+function toggleFacturacion() {
+    const checkbox = document.getElementById('requiere_factura');
+    const form = document.getElementById('form-facturacion');
+    
+    if (checkbox.checked) {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+
+function procesarPago() {
+    if (!metodoSeleccionado) {
+        alert('Selecciona un método de pago');
+        return;
+    }
+    
+    mostrarLoading();
+    
+    if (metodoSeleccionado === 'stripe') {
+        procesarPagoStripe();
+    } else {
+        procesarPagoGeneral();
+    }
+}
+
+function procesarPagoGeneral() {
+    const datos = {
+        tipo_pago: config.tipo_pago,
+        objeto_id: config.objeto_id,
+        metodo_pago: metodoSeleccionado,
+        requiere_factura: document.getElementById('requiere_factura').checked,
+        datos_facturacion: obtenerDatosFacturacion()
+    };
+    
+    fetch('{% url "pagos:crear_pago" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        ocultarLoading();
+        
+        if (data.success) {
+            if (data.metodo === 'efectivo') {
+                mostrarExitoPagoEfectivo(data);
+            } else if (data.metodo === 'paypal') {
+                window.location.href = data.redirect_url;
+            }
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        ocultarLoading();
+        console.error('Error:', error);
+        alert('Error al procesar el pago');
+    });
+}
+
+{% if config.stripe_activo %}
+function procesarPagoStripe() {
+    const datos = {
+        tipo_pago: config.tipo_pago,
+        objeto_id: config.objeto_id,
+        metodo_pago: 'stripe',
+        requiere_factura: document.getElementById('requiere_factura').checked,
+        datos_facturacion: obtenerDatosFacturacion()
+    };
+    
+    fetch('{% url "pagos:crear_pago" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            return stripe.confirmCardPayment(data.client_secret, {
+                payment_method: {
+                    card: cardElement
+                }
+            });
+        } else {
+            throw new Error(data.error);
+        }
+    })
+    .then(result => {
+        ocultarLoading();
+        
+        if (result.error) {
+            document.getElementById('card-errors').textContent = result.error.message;
+        } else {
+            mostrarExitoPago();
+        }
+    })
+    .catch(error => {
+        ocultarLoading();
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    });
+}
+{% endif %}
+
+function obtenerDatosFacturacion() {
+    if (!document.getElementById('requiere_factura').checked) {
+        return {};
+    }
+    
+    return {
+        nombre: document.getElementById('factura_nombre').value,
+        rfc: document.getElementById('factura_rfc').value,
+        direccion: document.getElementById('factura_direccion').value,
+        email: document.getElementById('factura_email').value,
+        telefono: document.getElementById('factura_telefono').value,
+    };
+}
+
+function mostrarLoading() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+}
+
+function ocultarLoading() {
+    document.getElementById('loading-overlay').style.display = 'none';
+}
+
+function mostrarExitoPago() {
+    alert('¡Pago procesado exitosamente!');
+    {% if tipo_pago == 'pedido' %}
+        window.location.href = '{% url "pedidos:mis_pedidos" %}';
+    {% else %}
+        window.location.href = '{% url "reservas:mis_reservas" %}';
+    {% endif %}
+}
+
+function mostrarExitoPagoEfectivo(data) {
+    alert(`Pago registrado exitosamente.\nCódigo: ${data.numero_pago.substr(0, 8)}\n\nRecuerda tener el efectivo listo al momento de la entrega/llegada.`);
+    {% if tipo_pago == 'pedido' %}
+        window.location.href = '{% url "pedidos:mis_pedidos" %}';
+    {% else %}
+        window.location.href = '{% url "reservas:mis_reservas" %}';
+    {% endif %}
+}
+</script>
+{% endblock %}

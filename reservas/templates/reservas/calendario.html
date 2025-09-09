@@ -1,0 +1,382 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Calendario de Reservas - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendario-container {
+        padding: 2rem 0;
+    }
+    
+    .fecha-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .navegacion-fecha {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .reserva-item {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #007bff;
+        transition: transform 0.2s ease;
+    }
+    
+    .reserva-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .estado-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.8em;
+    }
+    
+    .estado-pendiente { background: #ffc107; color: #000; }
+    .estado-confirmada { background: #007bff; color: #fff; }
+    .estado-en_curso { background: #28a745; color: #fff; }
+    .estado-completada { background: #198754; color: #fff; }
+    .estado-cancelada { background: #dc3545; color: #fff; }
+    .estado-no_show { background: #6c757d; color: #fff; }
+    
+    .hora-seccion {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .hora-titulo {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 0.5rem;
+    }
+    
+    .sin-reservas {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .reserva-cliente {
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .reserva-mesa {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    
+    .reserva-comensales {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    
+    .reserva-telefono {
+        color: #007bff;
+        font-size: 0.9em;
+    }
+    
+    .acciones-rapidas {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-accion {
+        font-size: 0.8em;
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container calendario-container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header con fecha -->
+            <div class="fecha-header">
+                <h2><i class="fas fa-calendar-alt"></i> Calendario de Reservas</h2>
+                <h3>{{ fecha|date:"l, d \d\e F \d\e Y"|title }}</h3>
+            </div>
+            
+            <!-- Navegación de fechas -->
+            <div class="navegacion-fecha">
+                <a href="?fecha={{ fecha_anterior|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                    <i class="fas fa-chevron-left"></i> Día Anterior
+                </a>
+                
+                <div class="d-flex align-items-center">
+                    <a href="?fecha={{ fecha_anterior|date:'Y-m-d' }}" class="btn btn-sm btn-outline-secondary me-2">
+                        {{ fecha_anterior|date:"d/m" }}
+                    </a>
+                    <span class="badge bg-primary fs-6">{{ fecha|date:"d/m" }}</span>
+                    <a href="?fecha={{ fecha_siguiente|date:'Y-m-d' }}" class="btn btn-sm btn-outline-secondary ms-2">
+                        {{ fecha_siguiente|date:"d/m" }}
+                    </a>
+                </div>
+                
+                <a href="?fecha={{ fecha_siguiente|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                    Día Siguiente <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+            
+            <!-- Resumen del día -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">{{ reservas.count }}</h5>
+                            <p class="card-text">Total Reservas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">{{ reservas|dictsort:"estado"|length }}</h5>
+                            <p class="card-text">Pendientes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">{{ reservas|dictsort:"estado"|length }}</h5>
+                            <p class="card-text">Confirmadas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">{{ reservas|dictsort:"estado"|length }}</h5>
+                            <p class="card-text">En Curso</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if reservas %}
+                <!-- Reservas organizadas por hora -->
+                {% for hora, reservas_hora in reservas_por_hora.items %}
+                <div class="hora-seccion">
+                    <div class="hora-titulo">
+                        <i class="fas fa-clock"></i> {{ hora }}
+                        <span class="badge bg-secondary ms-2">{{ reservas_hora|length }} reserva{{ reservas_hora|length|pluralize }}</span>
+                    </div>
+                    
+                    {% for reserva in reservas_hora %}
+                    <div class="reserva-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <div class="reserva-cliente">
+                                    <i class="fas fa-user"></i> {{ reserva.nombre_cliente }}
+                                </div>
+                                <div class="reserva-telefono">
+                                    <i class="fas fa-phone"></i> {{ reserva.telefono_cliente }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <div class="reserva-mesa">
+                                    <i class="fas fa-chair"></i> Mesa {{ reserva.mesa.numero }}
+                                </div>
+                                <div class="reserva-comensales">
+                                    <i class="fas fa-users"></i> {{ reserva.numero_comensales }} persona{{ reserva.numero_comensales|pluralize }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <span class="estado-badge estado-{{ reserva.estado }}">
+                                    {{ reserva.get_estado_display }}
+                                </span>
+                                {% if reserva.ocasion_especial %}
+                                <div class="mt-1">
+                                    <small class="text-info">
+                                        <i class="fas fa-star"></i> {{ reserva.get_ocasion_especial_display }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <small class="text-muted">
+                                    <strong>Código:</strong> {{ reserva.codigo_reserva|slice:":8" }}...<br>
+                                    <strong>Creada:</strong> {{ reserva.fecha_creacion|date:"H:i" }}
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-2 text-end">
+                                <div class="acciones-rapidas">
+                                    <a href="{% url 'reservas:detalle_reserva' reserva.id %}" 
+                                       class="btn btn-outline-primary btn-accion" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if reserva.estado == 'pendiente' %}
+                                    <button class="btn btn-outline-success btn-accion" title="Confirmar"
+                                            onclick="confirmarReserva({{ reserva.id }})">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if reserva.estado == 'confirmada' %}
+                                    <button class="btn btn-outline-info btn-accion" title="Marcar en curso"
+                                            onclick="marcarEnCurso({{ reserva.id }})">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if reserva.estado == 'en_curso' %}
+                                    <button class="btn btn-outline-success btn-accion" title="Marcar completada"
+                                            onclick="marcarCompletada({{ reserva.id }})">
+                                        <i class="fas fa-flag-checkered"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if reserva.puede_cancelar %}
+                                    <button class="btn btn-outline-danger btn-accion" title="Cancelar"
+                                            onclick="cancelarReserva({{ reserva.id }})">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if reserva.solicitudes_especiales %}
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    <strong>Solicitudes especiales:</strong> {{ reserva.solicitudes_especiales }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="sin-reservas">
+                    <i class="fas fa-calendar-times fa-5x mb-3"></i>
+                    <h4>No hay reservas para este día</h4>
+                    <p>No se han programado reservas para el {{ fecha|date:"d/m/Y" }}.</p>
+                    <a href="{% url 'reservas:disponibilidad' %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Crear Nueva Reserva
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para acciones -->
+<div class="modal fade" id="accionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="accionModalTitle">Confirmar Acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="accionModalBody">
+                <p>¿Estás seguro de que quieres realizar esta acción?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="accion-form" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" id="accionSubmit">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmarReserva(reservaId) {
+    const modal = new bootstrap.Modal(document.getElementById('accionModal'));
+    const title = document.getElementById('accionModalTitle');
+    const body = document.getElementById('accionModalBody');
+    const form = document.getElementById('accion-form');
+    const submitBtn = document.getElementById('accionSubmit');
+    
+    title.textContent = 'Confirmar Reserva';
+    body.innerHTML = '<p>¿Estás seguro de que quieres confirmar esta reserva?</p>';
+    form.action = `/reservas/reserva/${reservaId}/confirmar/`;
+    submitBtn.textContent = 'Confirmar Reserva';
+    submitBtn.className = 'btn btn-success';
+    
+    modal.show();
+}
+
+function marcarEnCurso(reservaId) {
+    const modal = new bootstrap.Modal(document.getElementById('accionModal'));
+    const title = document.getElementById('accionModalTitle');
+    const body = document.getElementById('accionModalBody');
+    const form = document.getElementById('accion-form');
+    const submitBtn = document.getElementById('accionSubmit');
+    
+    title.textContent = 'Marcar en Curso';
+    body.innerHTML = '<p>¿Estás seguro de que quieres marcar esta reserva como en curso?</p>';
+    form.action = `/reservas/reserva/${reservaId}/en-curso/`;
+    submitBtn.textContent = 'Marcar en Curso';
+    submitBtn.className = 'btn btn-info';
+    
+    modal.show();
+}
+
+function marcarCompletada(reservaId) {
+    const modal = new bootstrap.Modal(document.getElementById('accionModal'));
+    const title = document.getElementById('accionModalTitle');
+    const body = document.getElementById('accionModalBody');
+    const form = document.getElementById('accion-form');
+    const submitBtn = document.getElementById('accionSubmit');
+    
+    title.textContent = 'Marcar Completada';
+    body.innerHTML = '<p>¿Estás seguro de que quieres marcar esta reserva como completada?</p>';
+    form.action = `/reservas/reserva/${reservaId}/completar/`;
+    submitBtn.textContent = 'Marcar Completada';
+    submitBtn.className = 'btn btn-success';
+    
+    modal.show();
+}
+
+function cancelarReserva(reservaId) {
+    const modal = new bootstrap.Modal(document.getElementById('accionModal'));
+    const title = document.getElementById('accionModalTitle');
+    const body = document.getElementById('accionModalBody');
+    const form = document.getElementById('accion-form');
+    const submitBtn = document.getElementById('accionSubmit');
+    
+    title.textContent = 'Cancelar Reserva';
+    body.innerHTML = '<p>¿Estás seguro de que quieres cancelar esta reserva?</p><p class="text-muted small">Esta acción no se puede deshacer.</p>';
+    form.action = `/reservas/reserva/${reservaId}/cancelar/`;
+    submitBtn.textContent = 'Cancelar Reserva';
+    submitBtn.className = 'btn btn-danger';
+    
+    modal.show();
+}
+</script>
+{% endblock %}

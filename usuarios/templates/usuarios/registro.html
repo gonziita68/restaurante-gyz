@@ -1,4 +1,5 @@
 {% extends 'usuarios/base.html' %}
+{% load socialaccount %}
 
 {% block title %}Registro - Restaurante GYZ{% endblock %}
 
@@ -24,9 +25,11 @@
                             </label>
                             {{ form.username }}
                             {% if form.username.errors %}
-                                <div class="text-danger small mt-1">
+                                <div class="alert alert-danger small mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <strong>Error:</strong>
                                     {% for error in form.username.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -39,10 +42,21 @@
                             </label>
                             {{ form.email }}
                             {% if form.email.errors %}
-                                <div class="text-danger small mt-1">
+                                <div class="alert alert-danger small mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <strong>Error:</strong>
                                     {% for error in form.email.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                        {{ error }}
                                     {% endfor %}
+                                    <div class="mt-2">
+                                        <small>
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            ¿Ya tienes una cuenta? 
+                                            <a href="{% url 'usuarios:login' %}" class="alert-link">Inicia sesión aquí</a> 
+                                            o 
+                                            <a href="{% url 'usuarios:password_reset' %}" class="alert-link">recupera tu contraseña</a>
+                                        </small>
+                                    </div>
                                 </div>
                             {% endif %}
                         </div>
@@ -167,6 +181,16 @@
                             </button>
                         </div>
                     </form>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Registro con Google -->
+                    <div class="text-center mb-3">
+                        <p class="text-muted mb-2">O regístrate con</p>
+                        <a href="/accounts/google/login/" class="btn btn-outline-danger w-100">
+                            <i class="fab fa-google me-2"></i>Registrarse con Google
+                        </a>
+                    </div>
                     
                     <hr class="my-4">
                     

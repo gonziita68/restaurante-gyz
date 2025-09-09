@@ -22,10 +22,16 @@ def registro_usuario(request):
                 messages.success(request, '¡Registro exitoso! Bienvenido a nuestro restaurante.')
                 messages.warning(request, 'No pudimos enviar el correo de bienvenida, pero tu cuenta está activa.')
             
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('usuarios:index')
         else:
-            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+            # Manejar errores específicos
+            if 'email' in form.errors:
+                messages.error(request, 'El correo electrónico ya está registrado. Si olvidaste tu contraseña, puedes recuperarla desde la página de inicio de sesión.')
+            elif 'username' in form.errors:
+                messages.error(request, 'El nombre de usuario ya está en uso. Por favor, elige otro.')
+            else:
+                messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
         form = RegistroUsuarioForm()
     
@@ -53,7 +59,7 @@ def login_usuario(request):
                     user = None
             
             if user is not None:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 user.actualizar_ultimo_acceso()
                 messages.success(request, f'¡Bienvenido de vuelta, {user.first_name or user.username}!')
                 return redirect('usuarios:index')

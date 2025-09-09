@@ -1,0 +1,253 @@
+{% extends 'menu/base_menu.html' %}
+{% load static %}
+
+{% block menu_content %}
+<!-- Menú del día si existe -->
+{% if menu_hoy %}
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-warning mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="mb-0">
+                    <i class="fas fa-star"></i> 
+                    Menú del Día - {{ menu_hoy.fecha|date:"d/m/Y" }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <h5>{{ menu_hoy.nombre }}</h5>
+                <p class="text-muted">{{ menu_hoy.descripcion }}</p>
+                {% if menu_hoy.precio_completo %}
+                    <div class="h4 text-success">Precio completo: ${{ menu_hoy.precio_completo }}</div>
+                {% endif %}
+                <div class="row">
+                    {% for plato_dia in menu_hoy.platomenudel_dia_set.all %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                {% if plato_dia.plato.imagen %}
+                                    <img src="{{ plato_dia.plato.imagen.url }}" class="card-img-top plato-imagen" alt="{{ plato_dia.plato.nombre }}">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ plato_dia.plato.nombre }}</h6>
+                                    <p class="card-text small">{{ plato_dia.plato.descripcion|truncatewords:15 }}</p>
+                                    <div class="text-success font-weight-bold">
+                                        ${{ plato_dia.precio_final }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Platos destacados -->
+{% if platos_destacados %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-crown text-warning"></i> 
+            Platos Destacados
+        </h2>
+        <div class="row">
+            {% for plato in platos_destacados %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card plato-card">
+                        <div class="position-relative">
+                            {% if plato.imagen %}
+                                <img src="{{ plato.imagen.url }}" class="plato-imagen" alt="{{ plato.nombre }}">
+                            {% else %}
+                                <div class="plato-imagen bg-light d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-utensils fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Badges -->
+                            <div class="badge-personalizado">
+                                {% if plato.nuevo %}
+                                    <span class="badge bg-primary me-1">Nuevo</span>
+                                {% endif %}
+                                {% if plato.tiene_oferta %}
+                                    <span class="badge bg-danger me-1">Oferta</span>
+                                {% endif %}
+                                {% if plato.es_vegetariano %}
+                                    <span class="badge bg-success me-1">Vegetariano</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            <h5 class="card-title">{{ plato.nombre }}</h5>
+                            <p class="card-text">{{ plato.descripcion|truncatewords:20 }}</p>
+                            
+                            <!-- Calificaciones y reseñas -->
+                            <div class="d-flex align-items-center mb-2">
+                                {% if plato.calcular_promedio_calificaciones > 0 %}
+                                    <div class="text-warning me-2">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= plato.calcular_promedio_calificaciones %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ plato.calcular_promedio_calificaciones|floatformat:1 }} 
+                                        ({{ plato.obtener_total_resenas }} reseñas)
+                                    </small>
+                                {% else %}
+                                    <small class="text-muted">Sin calificaciones aún</small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Información adicional -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted tiempo-prep">
+                                    <i class="fas fa-clock"></i> {{ plato.tiempo_preparacion }} min
+                                </small>
+                                {% if plato.es_picante %}
+                                    <small class="nivel-picante">
+                                        {% for i in "x"|ljust:plato.nivel_picante %}
+                                            <i class="fas fa-pepper-hot"></i>
+                                        {% endfor %}
+                                    </small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Precio -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if plato.tiene_oferta %}
+                                        <span class="precio-original">${{ plato.precio }}</span>
+                                        <span class="precio-oferta">${{ plato.precio_oferta }}</span>
+                                    {% else %}
+                                        <span class="h5 text-success mb-0">${{ plato.precio }}</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'menu:plato_detalle' plato.id %}" class="btn btn-primary btn-sm">
+                                    Ver detalle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Platos nuevos -->
+{% if platos_nuevos %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-sparkles text-info"></i> 
+            Novedades
+        </h2>
+        <div class="row">
+            {% for plato in platos_nuevos %}
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card plato-card">
+                        {% if plato.imagen %}
+                            <img src="{{ plato.imagen.url }}" class="plato-imagen" alt="{{ plato.nombre }}">
+                        {% else %}
+                            <div class="plato-imagen bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-utensils fa-2x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">{{ plato.nombre }}</h6>
+                            <p class="card-text small">{{ plato.descripcion|truncatewords:10 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-success font-weight-bold">${{ plato.precio_actual }}</span>
+                                <a href="{% url 'menu:plato_detalle' plato.id %}" class="btn btn-outline-primary btn-sm">
+                                    Ver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Categorías del menú -->
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-list"></i> 
+            Categorías del Menú
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for categoria in categorias %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card categoria-card h-100">
+                <div class="card-body text-center">
+                    {% if categoria.icono %}
+                        <i class="{{ categoria.icono }} fa-3x text-primary mb-3"></i>
+                    {% else %}
+                        <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                    {% endif %}
+                    
+                    <h4 class="card-title">{{ categoria.nombre }}</h4>
+                    <p class="card-text">{{ categoria.descripcion|default:"Explora nuestros deliciosos platos" }}</p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-info">{{ categoria.platos.count }} platos</span>
+                    </div>
+                    
+                    <a href="{% url 'menu:categoria_detalle' categoria.id %}" class="btn btn-primary">
+                        Ver platos <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4>Menú en preparación</h4>
+                <p>Estamos trabajando en nuestro delicioso menú. ¡Vuelve pronto!</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Información adicional -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5>Información importante</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <i class="fas fa-leaf text-success fa-2x mb-2"></i>
+                        <p><small>Ingredientes frescos y naturales</small></p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
+                        <p><small>Consulta sobre alérgenos</small></p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-clock text-info fa-2x mb-2"></i>
+                        <p><small>Tiempos de preparación aproximados</small></p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-mobile-alt text-primary fa-2x mb-2"></i>
+                        <p><small>Ordena desde tu celular</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,620 @@
+# DOCUMENTACIÓN DEL SISTEMA DE RESTAURANTE GYZ
+
+## ÍNDICE
+1. [Sistema de Usuarios](#sistema-de-usuarios)
+2. [Sistema de Menú](#sistema-de-menú)
+3. [Sistema de Pedidos](#sistema-de-pedidos)
+4. [Sistema de Reservas](#sistema-de-reservas)
+5. [Sistema de Pagos](#sistema-de-pagos)
+6. [Sistema de Inventario](#sistema-de-inventario)
+7. [Sistema de Empleados](#sistema-de-empleados)
+8. [Características Técnicas](#características-técnicas)
+9. [Instalación y Configuración](#instalación-y-configuración)
+
+---
+
+## SISTEMA DE USUARIOS
+
+### Descripción
+Sistema completo de gestión de usuarios que permite registro, autenticación, perfiles personalizados y recuperación de contraseñas.
+
+### Funcionalidades Principales
+
+#### 1. Registro de Usuario
+- **Propósito**: Permite a nuevos clientes crear cuentas en el sistema
+- **Cómo Funciona**: 
+  - El usuario accede a `/registro/`
+  - Completa el formulario con datos personales
+  - Se crea automáticamente un perfil asociado
+- **URL**: `/registro/`
+- **Modelo**: `Usuario` (extiende AbstractUser de Django)
+
+#### 2. Inicio de Sesión
+- **Propósito**: Autenticación de usuarios registrados
+- **Cómo Funciona**:
+  - Acceso a `/login/`
+  - Validación de credenciales
+  - Creación de sesión activa
+- **URL**: `/login/`
+
+#### 3. Gestión de Perfil
+- **Propósito**: Permite a los usuarios ver y editar su información personal
+- **Funcionalidades**:
+  - Visualización de datos personales
+  - Edición de información de contacto
+  - Historial de pedidos y reservas
+- **URL**: `/perfil/`
+
+#### 4. Recuperación de Contraseña
+- **Propósito**: Sistema automatizado para restablecer contraseñas olvidadas
+- **Proceso**:
+  - Solicitud de reset en `/password-reset/`
+  - Envío de email con enlace seguro
+  - Confirmación y cambio de contraseña
+- **URLs**: 
+  - `/password-reset/` (solicitud)
+  - `/password-reset/<uidb64>/<token>/` (confirmación)
+
+#### 5. Cierre de Sesión
+- **Propósito**: Terminar sesiones activas de forma segura
+- **URL**: `/logout/`
+
+### Estructura de Datos
+- **Usuario**: Información básica (email, contraseña, nombre)
+- **PerfilUsuario**: Datos extendidos (teléfono, dirección, preferencias)
+
+---
+
+## SISTEMA DE MENÚ
+
+### Descripción
+Sistema completo de gestión de menús que incluye categorías, platos, ingredientes, personalización y sistema de reseñas.
+
+### Funcionalidades Principales
+
+#### 1. Visualización de Menú Completo
+- **Propósito**: Mostrar todos los platos disponibles organizados por categorías
+- **Características**:
+  - Filtrado por categorías
+  - Búsqueda de platos
+  - Vista responsive para móviles
+- **URL**: `/menu/`
+
+#### 2. Gestión de Categorías
+- **Propósito**: Organizar platos en grupos lógicos
+- **Funcionalidades**:
+  - Creación y edición de categorías
+  - Asignación de platos a categorías
+  - Ordenamiento personalizable
+- **Modelo**: `Categoria`
+
+#### 3. Gestión de Platos
+- **Propósito**: Administrar la información de cada plato del menú
+- **Características**:
+  - Información detallada (nombre, descripción, precio)
+  - Imágenes de alta calidad
+  - Estado de disponibilidad
+  - Ingredientes y alérgenos
+- **Modelo**: `Plato`
+
+#### 4. Sistema de Ingredientes
+- **Propósito**: Control detallado de componentes de cada plato
+- **Funcionalidades**:
+  - Lista de ingredientes por plato
+  - Información nutricional
+  - Control de alérgenos
+- **Modelo**: `Ingrediente`
+
+#### 5. Opciones de Personalización
+- **Propósito**: Permitir a los clientes personalizar sus platos
+- **Tipos**:
+  - Opciones de cocción
+  - Acompañamientos
+  - Salsas y condimentos
+- **Modelo**: `OpcionPersonalizacion`
+
+#### 6. Menús del Día
+- **Propósito**: Ofrecer platos especiales según el día
+- **Características**:
+  - Configuración por día de la semana
+  - Precios especiales
+  - Disponibilidad limitada
+- **Modelo**: `MenuDia`
+
+#### 7. Sistema de Reseñas
+- **Propósito**: Permitir a los clientes evaluar y comentar sobre los platos
+- **Funcionalidades**:
+  - Calificación con estrellas (1-5)
+  - Comentarios escritos
+  - Respuestas del restaurante
+  - Dashboard para gestión
+- **URLs**:
+  - `/plato/<id>/resenas/` (ver reseñas)
+  - `/plato/<id>/resena/` (crear reseña)
+  - `/resena/<id>/responder/` (responder reseña)
+  - `/dashboard/resenas/` (gestión de reseñas)
+- **Modelo**: `Resena`
+
+### APIs Disponibles
+- **Menu API**: `/menu/api/`
+- **Disponibilidad**: `/menu/api/disponibilidad/<id>/`
+- **Reseñas**: `/menu/api/resenas/todas/`
+
+---
+
+## SISTEMA DE PEDIDOS
+
+### Descripción
+Sistema completo de gestión de pedidos que incluye carrito de compras, procesamiento de pedidos y seguimiento.
+
+### Funcionalidades Principales
+
+#### 1. Carrito de Compras
+- **Propósito**: Permitir a los clientes seleccionar y gestionar platos antes de ordenar
+- **Funcionalidades**:
+  - Agregar platos al carrito
+  - Modificar cantidades
+  - Eliminar items
+  - Cálculo automático de totales
+- **URLs**:
+  - `/pedidos/carrito/` (ver carrito)
+  - `/pedidos/carrito/agregar/` (agregar item)
+  - `/pedidos/carrito/actualizar/<id>/` (modificar cantidad)
+  - `/pedidos/carrito/eliminar/<id>/` (eliminar item)
+  - `/pedidos/carrito/limpiar/` (vaciar carrito)
+- **Modelos**: `Carrito`, `ItemCarrito`
+
+#### 2. Proceso de Checkout
+- **Propósito**: Finalizar la compra y crear el pedido
+- **Pasos**:
+  - Revisión del carrito
+  - Confirmación de datos de entrega
+  - Selección de método de pago
+  - Confirmación final
+- **URL**: `/pedidos/checkout/`
+
+#### 3. Gestión de Pedidos
+- **Propósito**: Administrar el ciclo completo de vida de los pedidos
+- **Estados**:
+  - Pendiente
+  - Confirmado
+  - En preparación
+  - Listo para entrega
+  - Entregado
+  - Cancelado
+- **Funcionalidades**:
+  - Historial de pedidos personales
+  - Detalle completo de cada pedido
+  - Cancelación de pedidos
+- **URLs**:
+  - `/pedidos/mis-pedidos/` (historial)
+  - `/pedidos/pedido/<id>/` (detalle)
+  - `/pedidos/pedido/<id>/cancelar/` (cancelar)
+- **Modelos**: `Pedido`, `ItemPedido`
+
+#### 4. Seguimiento de Pedidos
+- **Propósito**: Permitir a los clientes rastrear el estado de sus pedidos
+- **Características**:
+  - Número único de seguimiento
+  - Estado en tiempo real
+  - Tiempo estimado de entrega
+- **URL**: `/pedidos/seguimiento/<numero_pedido>/`
+- **Modelo**: `SeguimientoPedido`
+
+### APIs del Carrito
+- **Información del Carrito**: `/pedidos/carrito/info/`
+
+---
+
+## SISTEMA DE RESERVAS
+
+### Descripción
+Sistema avanzado de gestión de reservas que incluye disponibilidad de mesas, horarios y gestión de reservas.
+
+### Funcionalidades Principales
+
+#### 1. Consulta de Disponibilidad
+- **Propósito**: Permitir a los clientes verificar disponibilidad de mesas
+- **Funcionalidades**:
+  - Búsqueda por fecha y hora
+  - Filtrado por número de personas
+  - Visualización de mesas disponibles
+- **URL**: `/reservas/`
+- **APIs**:
+  - `/reservas/api/buscar-disponibilidad/`
+  - `/reservas/api/horarios-disponibles/`
+
+#### 2. Creación de Reservas
+- **Propósito**: Proceso completo de reserva de mesa
+- **Pasos**:
+  - Selección de fecha y hora
+  - Elección de mesa
+  - Confirmación de datos
+  - Confirmación de reserva
+- **URL**: `/reservas/crear/`
+
+#### 3. Gestión de Reservas Personales
+- **Propósito**: Administrar las reservas del usuario
+- **Funcionalidades**:
+  - Lista de reservas activas
+  - Detalle de cada reserva
+  - Cancelación de reservas
+- **URLs**:
+  - `/reservas/mis-reservas/` (lista)
+  - `/reservas/reserva/<id>/` (detalle)
+  - `/reservas/reserva/<id>/cancelar/` (cancelar)
+
+#### 4. Consulta Pública de Reservas
+- **Propósito**: Permitir consultar reservas existentes sin login
+- **URL**: `/reservas/consultar/`
+
+#### 5. Calendario de Reservas (Staff)
+- **Propósito**: Vista administrativa de todas las reservas
+- **Funcionalidades**:
+  - Vista de calendario mensual
+  - Gestión de reservas
+  - Bloqueo de mesas
+- **URL**: `/reservas/calendario/`
+
+### Estructura de Datos
+- **ConfiguracionRestaurante**: Horarios y políticas del restaurante
+- **TipoMesa**: Diferentes tipos de mesas disponibles
+- **Mesa**: Mesas físicas del restaurante
+- **Reserva**: Reservas de los clientes
+- **HistorialReserva**: Historial de cambios en reservas
+- **BloqueoMesa**: Bloqueos temporales de mesas
+
+---
+
+## SISTEMA DE PAGOS
+
+### Descripción
+Sistema integrado de pagos que soporta múltiples métodos de pago y procesamiento seguro.
+
+### Funcionalidades Principales
+
+#### 1. Procesamiento de Pagos
+- **Propósito**: Procesar pagos para pedidos y reservas
+- **Métodos Soportados**:
+  - Tarjetas de crédito/débito (Stripe)
+  - Efectivo
+  - Transferencias bancarias
+- **URLs**:
+  - `/pagos/pedido/<id>/` (pago de pedido)
+  - `/pagos/reserva/<id>/` (pago de reserva)
+  - `/pagos/crear/` (pago general)
+
+#### 2. Confirmación de Pagos en Efectivo
+- **Propósito**: Confirmar pagos realizados en efectivo
+- **URL**: `/pagos/confirmar-efectivo/<id>/`
+
+#### 3. Webhooks de Stripe
+- **Propósito**: Procesar notificaciones automáticas de Stripe
+- **URL**: `/pagos/webhook/stripe/`
+
+#### 4. Historial y Consultas
+- **Propósito**: Acceso a información de pagos
+- **Funcionalidades**:
+  - Historial de pagos personales
+  - Consulta de estado de pago
+- **URLs**:
+  - `/pagos/historial/` (historial)
+  - `/pagos/estado/<numero_pago>/` (estado)
+
+### Integración con Stripe
+- Procesamiento seguro de tarjetas
+- Manejo automático de errores
+- Notificaciones en tiempo real
+
+---
+
+## SISTEMA DE INVENTARIO
+
+### Descripción
+Sistema completo de gestión de inventario que incluye control de stock, órdenes de compra y alertas automáticas.
+
+### Funcionalidades Principales
+
+#### 1. Dashboard de Inventario
+- **Propósito**: Vista general del estado del inventario
+- **Información Mostrada**:
+  - Stock actual por producto
+  - Alertas de stock bajo
+  - Movimientos recientes
+  - Productos críticos
+- **URL**: `/inventario/`
+
+#### 2. Gestión de Productos
+- **Propósito**: Administrar todos los productos del inventario
+- **Funcionalidades**:
+  - Lista completa de productos
+  - Detalle de cada producto
+  - Control de stock mínimo y máximo
+  - Categorización de productos
+- **URLs**:
+  - `/inventario/productos/` (lista)
+  - `/inventario/productos/<id>/` (detalle)
+- **Modelo**: `ProductoInventario`
+
+#### 3. Control de Movimientos
+- **Propósito**: Registrar todos los movimientos de inventario
+- **Tipos de Movimientos**:
+  - Entradas (compras, devoluciones)
+  - Salidas (consumo, ventas)
+  - Ajustes de inventario
+- **URL**: `/inventario/productos/movimiento/`
+- **Modelo**: `MovimientoInventario`
+
+#### 4. Órdenes de Compra
+- **Propósito**: Gestionar la reposición de inventario
+- **Funcionalidades**:
+  - Creación de órdenes
+  - Seguimiento de estado
+  - Recepción de productos
+- **URLs**:
+  - `/inventario/ordenes/` (lista)
+  - `/inventario/ordenes/<id>/` (detalle)
+- **Modelos**: `OrdenCompra`, `ItemOrdenCompra`
+
+#### 5. Sistema de Alertas
+- **Propósito**: Notificar automáticamente sobre situaciones críticas
+- **Tipos de Alertas**:
+  - Stock bajo
+  - Stock crítico
+  - Productos vencidos
+  - Exceso de stock
+- **URLs**:
+  - `/inventario/alertas/` (lista)
+  - `/inventario/alertas/<id>/resolver/` (resolver)
+
+#### 6. Reportes de Inventario
+- **Propósito**: Generar informes detallados del inventario
+- **Tipos de Reportes**:
+  - Valor total del inventario
+  - Movimientos por período
+  - Productos más/menos vendidos
+- **URL**: `/inventario/reporte/`
+
+#### 7. Procesamiento Automático
+- **Propósito**: Actualizar inventario automáticamente
+- **Funcionalidades**:
+  - Consumo por pedidos
+  - Actualización de stock
+  - Generación de alertas
+- **URL**: `/inventario/procesar-consumos/`
+
+### APIs Disponibles
+- **Productos Disponibles**: `/inventario/api/productos/`
+
+---
+
+## SISTEMA DE EMPLEADOS
+
+### Descripción
+Sistema completo de gestión de recursos humanos que incluye empleados, asistencia, evaluaciones y nómina.
+
+### Funcionalidades Principales
+
+#### 1. Dashboard de Empleados
+- **Propósito**: Vista general del personal y estadísticas
+- **Información Mostrada**:
+  - Total de empleados
+  - Asistencia del día
+  - Evaluaciones pendientes
+  - Capacitaciones activas
+- **URL**: `/empleados/`
+
+#### 2. Gestión de Empleados
+- **Propósito**: Administrar toda la información del personal
+- **Funcionalidades**:
+  - Lista completa de empleados
+  - Perfil detallado de cada empleado
+  - Información laboral y personal
+  - Historial de cambios
+- **URLs**:
+  - `/empleados/lista/` (lista)
+  - `/empleados/empleado/<id>/` (detalle)
+- **Modelo**: `Empleado`
+
+#### 3. Control de Asistencia
+- **Propósito**: Registrar y controlar la asistencia diaria
+- **Funcionalidades**:
+  - Marcado de entrada/salida
+  - Vista de asistencia diaria
+  - Control de horarios
+  - Reportes de ausencias
+- **URLs**:
+  - `/empleados/asistencia/` (vista diaria)
+  - `/empleados/asistencia/marcar/` (marcar asistencia)
+- **Modelo**: `RegistroAsistencia`
+
+#### 4. Sistema de Evaluaciones
+- **Propósito**: Evaluar el desempeño del personal
+- **Funcionalidades**:
+  - Evaluaciones periódicas
+  - Criterios de evaluación
+  - Historial de evaluaciones
+  - Planes de mejora
+- **URL**: `/empleados/evaluaciones-pendientes/`
+- **Modelo**: `Evaluacion`
+
+#### 5. Gestión de Capacitaciones
+- **Propósito**: Administrar la formación del personal
+- **Funcionalidades**:
+  - Planes de capacitación
+  - Registro de asistencia
+  - Evaluación de resultados
+  - Certificaciones
+- **URL**: `/empleados/capacitaciones/`
+- **Modelo**: `Capacitacion`
+
+#### 6. Sistema de Nómina
+- **Propósito**: Generar reportes de nómina y pagos
+- **Funcionalidades**:
+  - Cálculo de salarios
+  - Deducciones y bonificaciones
+  - Reportes mensuales
+  - Historial de pagos
+- **URL**: `/empleados/nomina/`
+- **Modelo**: `Nomina`
+
+#### 7. Perfil del Empleado
+- **Propósito**: Permitir a cada empleado gestionar su información
+- **Funcionalidades**:
+  - Ver información personal
+  - Actualizar datos de contacto
+  - Ver historial laboral
+  - Acceder a capacitaciones
+- **URL**: `/empleados/mi-perfil/`
+
+### APIs Disponibles
+- **Búsqueda de Empleados**: `/empleados/api/buscar/`
+
+---
+
+## CARACTERÍSTICAS TÉCNICAS
+
+### Tecnologías Utilizadas
+- **Backend**: Django 5.2.4 (Python)
+- **Base de Datos**: SQLite (desarrollo) / PostgreSQL (producción)
+- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
+- **APIs**: Django REST Framework, Django Ninja
+- **Pagos**: Stripe
+- **Imágenes**: Pillow (PIL)
+
+### Arquitectura del Sistema
+- **Patrón MVC**: Modelo-Vista-Controlador
+- **APIs RESTful**: Para comunicación frontend-backend
+- **Sistema de Templates**: Django Templates con herencia
+- **Gestión de Archivos**: Sistema de archivos media y static
+- **Seguridad**: CSRF, autenticación de usuarios, permisos
+
+### Características de Seguridad
+- **Autenticación**: Sistema de usuarios personalizado
+- **Autorización**: Control de acceso basado en roles
+- **Protección CSRF**: Tokens en todos los formularios
+- **Validación**: Validación tanto en frontend como backend
+- **Sanitización**: Limpieza de datos de entrada
+
+### Responsive Design
+- **Mobile First**: Diseño optimizado para móviles
+- **Bootstrap 5**: Framework CSS responsive
+- **JavaScript Moderno**: Compatible con navegadores actuales
+- **Progressive Web App**: Características de aplicación web
+
+---
+
+## INSTALACIÓN Y CONFIGURACIÓN
+
+### Requisitos del Sistema
+- **Python**: 3.8 o superior
+- **Django**: 5.2.4
+- **Base de Datos**: SQLite (incluido) o PostgreSQL
+- **Navegador**: Chrome, Firefox, Safari, Edge (versiones recientes)
+
+### Pasos de Instalación
+
+#### 1. Clonar el Repositorio
+```bash
+git clone [URL_DEL_REPOSITORIO]
+cd restaurante-gyz
+```
+
+#### 2. Crear Entorno Virtual
+```bash
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
+```
+
+#### 3. Instalar Dependencias
+```bash
+pip install -r requirements.txt
+```
+
+#### 4. Configurar Variables de Entorno
+Crear archivo `.env` en la raíz del proyecto:
+```env
+SECRET_KEY=tu_clave_secreta_aqui
+DEBUG=True
+DATABASE_URL=sqlite:///db.sqlite3
+STRIPE_PUBLIC_KEY=tu_clave_publica_stripe
+STRIPE_SECRET_KEY=tu_clave_secreta_stripe
+```
+
+#### 5. Ejecutar Migraciones
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+#### 6. Crear Superusuario
+```bash
+python manage.py createsuperuser
+```
+
+#### 7. Ejecutar el Servidor
+```bash
+python manage.py runserver
+```
+
+### Configuración de Stripe
+1. Crear cuenta en [stripe.com](https://stripe.com)
+2. Obtener claves API (pública y secreta)
+3. Configurar webhooks para notificaciones
+4. Agregar claves al archivo `.env`
+
+### Configuración de Base de Datos
+- **Desarrollo**: SQLite (configurado por defecto)
+- **Producción**: PostgreSQL recomendado
+- **Variables de entorno**:
+  - `DATABASE_URL`: URL de conexión a la base de datos
+  - `DB_NAME`: Nombre de la base de datos
+  - `DB_USER`: Usuario de la base de datos
+  - `DB_PASSWORD`: Contraseña de la base de datos
+  - `DB_HOST`: Host de la base de datos
+  - `DB_PORT`: Puerto de la base de datos
+
+### Comandos Útiles
+```bash
+# Crear migraciones
+python manage.py makemigrations [app_name]
+
+# Aplicar migraciones
+python manage.py migrate
+
+# Crear superusuario
+python manage.py createsuperuser
+
+# Ejecutar tests
+python manage.py test
+
+# Recolectar archivos estáticos
+python manage.py collectstatic
+
+# Shell de Django
+python manage.py shell
+```
+
+---
+
+## CONCLUSIÓN
+
+El Sistema de Restaurante GYZ es una solución completa y robusta que cubre todas las necesidades de un restaurante moderno. Desde la gestión de usuarios y menús hasta el control de inventario y empleados, el sistema proporciona una plataforma integral para la operación eficiente del negocio.
+
+### Puntos Destacados
+- **Interfaz Intuitiva**: Diseño responsive y fácil de usar
+- **Funcionalidades Completas**: Cobertura total de operaciones del restaurante
+- **Seguridad Robusta**: Múltiples capas de protección
+- **Escalabilidad**: Arquitectura preparada para crecimiento
+- **Integración**: APIs y webhooks para sistemas externos
+
+### Soporte y Mantenimiento
+- **Documentación Completa**: Esta documentación cubre todas las funcionalidades
+- **Código Limpio**: Estructura clara y mantenible
+- **Estándares Web**: Cumple con las mejores prácticas de desarrollo web
+- **Compatibilidad**: Funciona en todos los navegadores modernos
+
+El sistema está diseñado para ser fácil de usar, seguro y escalable, proporcionando una base sólida para la gestión eficiente de cualquier restaurante.

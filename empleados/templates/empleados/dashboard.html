@@ -1,0 +1,444 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Empleados - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 2rem 0;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        border-left: 5px solid;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-card.primary { border-left-color: #007bff; }
+    .stat-card.success { border-left-color: #28a745; }
+    .stat-card.warning { border-left-color: #ffc107; }
+    .stat-card.info { border-left-color: #17a2b8; }
+    
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+        float: right;
+        margin-top: -10px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .quick-actions {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-btn {
+        background: rgba(255,255,255,0.2);
+        border: 2px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .employee-card {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .employee-card:hover {
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .department-bar {
+        height: 25px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        margin-bottom: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .department-label {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: white;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .birthday-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .birthday-item:last-child {
+        border-bottom: none;
+    }
+    
+    .birthday-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    
+    .progress-ring {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+    
+    .progress-circle {
+        fill: none;
+        stroke-width: 8;
+        r: 45;
+        cx: 60;
+        cy: 60;
+    }
+    
+    .progress-background {
+        stroke: #e9ecef;
+    }
+    
+    .progress-bar {
+        stroke: #28a745;
+        stroke-linecap: round;
+        transform-origin: center;
+        transform: rotate(-90deg);
+        animation: progress 2s ease-out;
+    }
+    
+    @keyframes progress {
+        from { stroke-dasharray: 0 283; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-users"></i> Dashboard de Empleados</h2>
+            <p class="text-muted">Panel de control para gestión de recursos humanos</p>
+        </div>
+    </div>
+    
+    <!-- Estadísticas principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card primary">
+                <i class="fas fa-users stat-icon"></i>
+                <h3 class="stat-number">{{ total_empleados }}</h3>
+                <p class="stat-label">Total Empleados</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card success">
+                <i class="fas fa-user-check stat-icon"></i>
+                <h3 class="stat-number">{{ empleados_activos }}</h3>
+                <p class="stat-label">Empleados Activos</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card info">
+                <i class="fas fa-user-plus stat-icon"></i>
+                <h3 class="stat-number">{{ empleados_nuevos_mes }}</h3>
+                <p class="stat-label">Nuevos este Mes</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card warning">
+                <i class="fas fa-dollar-sign stat-icon"></i>
+                <h3 class="stat-number">${{ costo_nomina_total|floatformat:0 }}</h3>
+                <p class="stat-label">Costo Nómina</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones rápidas -->
+    <div class="quick-actions">
+        <h4><i class="fas fa-bolt"></i> Acciones Rápidas</h4>
+        <div class="row">
+            <div class="col-md-12">
+                <a href="{% url 'empleados:lista_empleados' %}" class="action-btn">
+                    <i class="fas fa-list"></i> Ver Empleados
+                </a>
+                <a href="{% url 'empleados:asistencia_diaria' %}" class="action-btn">
+                    <i class="fas fa-clock"></i> Asistencia Diaria
+                </a>
+                <a href="{% url 'empleados:evaluaciones_pendientes' %}" class="action-btn">
+                    <i class="fas fa-star"></i> Evaluaciones
+                    {% if evaluaciones_pendientes > 0 %}
+                        <span class="badge bg-danger ms-1">{{ evaluaciones_pendientes }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'empleados:capacitaciones' %}" class="action-btn">
+                    <i class="fas fa-graduation-cap"></i> Capacitaciones
+                </a>
+                <a href="{% url 'empleados:reporte_nomina' %}" class="action-btn">
+                    <i class="fas fa-file-invoice-dollar"></i> Nómina
+                </a>
+                <a href="{% url 'admin:empleados_empleado_changelist' %}" class="action-btn">
+                    <i class="fas fa-cog"></i> Configuración
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Asistencia de hoy -->
+        <div class="col-lg-4">
+            <div class="info-card">
+                <h5><i class="fas fa-calendar-check text-primary"></i> Asistencia de Hoy</h5>
+                <p class="text-muted">Estado de asistencia del día actual</p>
+                
+                <div class="text-center mb-3">
+                    <svg class="progress-ring">
+                        <circle class="progress-circle progress-background" />
+                        <circle class="progress-circle progress-bar" 
+                                style="stroke-dasharray: {{ asistencia_hoy.presentes|default:0 }}0 283;" />
+                    </svg>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4 class="text-success">{{ asistencia_hoy.presentes|default:0 }}</h4>
+                        <small class="text-muted">Presentes</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-danger">{{ asistencia_hoy.ausentes|default:0 }}</h4>
+                        <small class="text-muted">Ausentes</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-warning">{{ asistencia_hoy.tardanzas|default:0 }}</h4>
+                        <small class="text-muted">Tardanzas</small>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'empleados:asistencia_diaria' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye"></i> Ver Detalle
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empleados por departamento -->
+        <div class="col-lg-8">
+            <div class="info-card">
+                <h5><i class="fas fa-building text-info"></i> Empleados por Departamento</h5>
+                <p class="text-muted">Distribución del personal por áreas</p>
+                
+                {% for departamento in empleados_por_depto %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="font-weight-bold">{{ departamento.nombre }}</span>
+                            <span class="text-muted">
+                                {% if departamento.cantidad_empleados == 1 %}
+                                    {{ departamento.cantidad_empleados }} empleado
+                                {% else %}
+                                    {{ departamento.cantidad_empleados }} empleados
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="department-bar" style="width: {% if empleados_activos > 0 %}{% widthratio departamento.cantidad_empleados empleados_activos 100 %}{% else %}0{% endif %}%;">
+                            <span class="department-label">{{ departamento.cantidad_empleados }}</span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-building text-muted fa-3x mb-3"></i>
+                        <p class="text-muted">No hay departamentos configurados</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Cumpleaños del mes -->
+        <div class="col-lg-6">
+            <div class="info-card">
+                <h5><i class="fas fa-birthday-cake text-warning"></i> Cumpleaños del Mes</h5>
+                <p class="text-muted">Empleados que cumplen años este mes</p>
+                
+                {% if cumpleanos_mes %}
+                    {% for empleado in cumpleanos_mes %}
+                        <div class="birthday-item">
+                            <div class="birthday-avatar">
+                                {{ empleado.usuario.first_name|first }}{{ empleado.usuario.last_name|first }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ empleado.nombre_completo }}</h6>
+                                <small class="text-muted">{{ empleado.puesto.nombre }} - {{ empleado.fecha_nacimiento|date:"d/m" }}</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-warning">{{ empleado.edad }} años</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-birthday-cake text-muted fa-3x mb-3"></i>
+                        <p class="text-muted">No hay cumpleaños este mes</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Empleados destacados -->
+        <div class="col-lg-6">
+            <div class="info-card">
+                <h5><i class="fas fa-star text-success"></i> Empleados Destacados</h5>
+                <p class="text-muted">Mejores evaluaciones de desempeño</p>
+                
+                {% if empleados_destacados %}
+                    {% for empleado in empleados_destacados %}
+                        <div class="employee-card">
+                            <div class="row align-items-center">
+                                <div class="col-8">
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'empleados:detalle_empleado' empleado.id %}">
+                                            {{ empleado.nombre_completo }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">{{ empleado.puesto.nombre }}</small>
+                                </div>
+                                <div class="col-4 text-end">
+                                    {% if empleado.evaluacion_actual >= 8 %}
+                                        <span class="badge bg-success">{{ empleado.evaluacion_actual }}/10</span>
+                                    {% elif empleado.evaluacion_actual >= 6 %}
+                                        <span class="badge bg-warning">{{ empleado.evaluacion_actual }}/10</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ empleado.evaluacion_actual }}/10</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-star text-muted fa-3x mb-3"></i>
+                        <p class="text-muted">No hay evaluaciones registradas</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alertas y notificaciones -->
+    {% if evaluaciones_pendientes > 0 %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Atención:</strong> 
+                    {% if evaluaciones_pendientes == 1 %}
+                        Hay {{ evaluaciones_pendientes }} empleado que requiere evaluación de desempeño.
+                    {% else %}
+                        Hay {{ evaluaciones_pendientes }} empleados que requieren evaluación de desempeño.
+                    {% endif %}
+                    <a href="{% url 'empleados:evaluaciones_pendientes' %}" class="alert-link">Ver lista completa</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animación de progreso circular
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        const presentes = {{ asistencia_hoy.presentes|default:0 }};
+        const ausentes = {{ asistencia_hoy.ausentes|default:0 }};
+        const total = presentes + ausentes;
+        
+        if (total > 0) {
+            const percentage = (presentes / total) * 100;
+            const circumference = 2 * Math.PI * 45;
+            const strokeDasharray = (percentage / 100) * circumference;
+            progressBar.style.strokeDasharray = `${strokeDasharray} ${circumference}`;
+        }
+    }
+    
+    // Auto-refresh cada 5 minutos solo si el usuario está activo
+    let refreshTimeout;
+    
+    function resetRefreshTimer() {
+        clearTimeout(refreshTimeout);
+        refreshTimeout = setTimeout(function() {
+            if (document.visibilityState === 'visible') {
+                location.reload();
+            }
+        }, 300000); // 5 minutos
+    }
+    
+    // Resetear timer cuando el usuario interactúa
+    document.addEventListener('click', resetRefreshTimer);
+    document.addEventListener('keypress', resetRefreshTimer);
+    
+    // Iniciar timer
+    resetRefreshTimer();
+});
+</script>
+{% endblock %}

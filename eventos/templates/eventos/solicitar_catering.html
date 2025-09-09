@@ -1,0 +1,321 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Solicitar Catering - Restaurante GYZ{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-utensils me-2"></i>
+                        Solicitar Servicio de Catering
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Información:</strong> Complete el formulario para solicitar nuestro servicio de catering. 
+                        Nos pondremos en contacto con usted para confirmar los detalles y enviarle una cotización.
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Información básica del evento -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calendar me-2"></i>Información del Evento
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nombre_evento" class="form-label">
+                                            <i class="fas fa-tag me-1"></i>Nombre del Evento *
+                                        </label>
+                                        <input type="text" class="form-control" id="nombre_evento" name="nombre_evento" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="descripcion" class="form-label">
+                                            <i class="fas fa-align-left me-1"></i>Descripción
+                                        </label>
+                                        <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="fecha_evento" class="form-label">
+                                            <i class="fas fa-calendar me-1"></i>Fecha del Evento *
+                                        </label>
+                                        <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="hora_inicio" class="form-label">
+                                            <i class="fas fa-clock me-1"></i>Hora de Inicio *
+                                        </label>
+                                        <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="hora_fin" class="form-label">
+                                            <i class="fas fa-clock me-1"></i>Hora de Fin *
+                                        </label>
+                                        <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="numero_invitados" class="form-label">
+                                            <i class="fas fa-users me-1"></i>Número de Invitados *
+                                        </label>
+                                        <input type="number" class="form-control" id="numero_invitados" name="numero_invitados" min="1" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="direccion_evento" class="form-label">
+                                            <i class="fas fa-map me-1"></i>Dirección del Evento *
+                                        </label>
+                                        <textarea class="form-control" id="direccion_evento" name="direccion_evento" rows="2" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuración del catering -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cog me-2"></i>Configuración del Catering
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.tipo_catering.id_for_label }}" class="form-label">
+                                            <i class="fas fa-list me-1"></i>Tipo de Catering *
+                                        </label>
+                                        {{ form.tipo_catering }}
+                                        {% if form.tipo_catering.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.tipo_catering.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.hora_entrega.id_for_label }}" class="form-label">
+                                            <i class="fas fa-clock me-1"></i>Hora de Entrega *
+                                        </label>
+                                        {{ form.hora_entrega }}
+                                        {% if form.hora_entrega.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.hora_entrega.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.hora_recogida.id_for_label }}" class="form-label">
+                                            <i class="fas fa-clock me-1"></i>Hora de Recogida *
+                                        </label>
+                                        {{ form.hora_recogida }}
+                                        {% if form.hora_recogida.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.hora_recogida.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.numero_meseros.id_for_label }}" class="form-label">
+                                            <i class="fas fa-user-tie me-1"></i>Número de Meseros
+                                        </label>
+                                        {{ form.numero_meseros }}
+                                        {% if form.numero_meseros.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.numero_meseros.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.numero_chefs.id_for_label }}" class="form-label">
+                                            <i class="fas fa-user-chef me-1"></i>Número de Chefs
+                                        </label>
+                                        {{ form.numero_chefs }}
+                                        {% if form.numero_chefs.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.numero_chefs.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.equipamiento_requerido.id_for_label }}" class="form-label">
+                                            <i class="fas fa-tools me-1"></i>Equipamiento Requerido
+                                        </label>
+                                        {{ form.equipamiento_requerido }}
+                                        {% if form.equipamiento_requerido.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.equipamiento_requerido.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Servicios incluidos -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>Servicios Incluidos
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            {{ form.incluye_servicio_mesa }}
+                                            <label class="form-check-label" for="{{ form.incluye_servicio_mesa.id_for_label }}">
+                                                <i class="fas fa-concierge-bell me-1"></i>Servicio de Mesa
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            {{ form.incluye_equipamiento }}
+                                            <label class="form-check-label" for="{{ form.incluye_equipamiento.id_for_label }}">
+                                                <i class="fas fa-tools me-1"></i>Equipamiento
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            {{ form.incluye_personal }}
+                                            <label class="form-check-label" for="{{ form.incluye_personal.id_for_label }}">
+                                                <i class="fas fa-users me-1"></i>Personal
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equipamiento adicional -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-plus-circle me-2"></i>Equipamiento Adicional
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            {{ form.mesas_sillas }}
+                                            <label class="form-check-label" for="{{ form.mesas_sillas.id_for_label }}">
+                                                <i class="fas fa-chair me-1"></i>Mesas y Sillas
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            {{ form.manteleria }}
+                                            <label class="form-check-label" for="{{ form.manteleria.id_for_label }}">
+                                                <i class="fas fa-table me-1"></i>Mantelería
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check">
+                                            {{ form.vajilla }}
+                                            <label class="form-check-label" for="{{ form.vajilla.id_for_label }}">
+                                                <i class="fas fa-utensils me-1"></i>Vajilla
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'eventos:mis_eventos' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-1"></i>Enviar Solicitud de Catering
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-truck fa-2x text-success mb-2"></i>
+                    <h5>Entrega y Recogida</h5>
+                    <p class="mb-0">Servicio completo de logística</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-tie fa-2x text-info mb-2"></i>
+                    <h5>Personal Profesional</h5>
+                    <p class="mb-0">Chefs y meseros experimentados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-tools fa-2x text-warning mb-2"></i>
+                    <h5>Equipamiento Completo</h5>
+                    <p class="mb-0">Todo lo necesario para su evento</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación del formulario
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Establecer fecha mínima como hoy
+document.addEventListener('DOMContentLoaded', function() {
+    var fechaInput = document.getElementById('fecha_evento');
+    if (fechaInput) {
+        var today = new Date().toISOString().split('T')[0];
+        fechaInput.setAttribute('min', today);
+    }
+});
+</script>
+{% endblock %}

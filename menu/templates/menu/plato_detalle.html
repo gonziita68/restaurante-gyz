@@ -1,0 +1,938 @@
+{% extends 'menu/base_menu.html' %}
+{% load static %}
+
+{% block menu_title %}{{ plato.nombre }}{% endblock %}
+{% block menu_subtitle %}{{ plato.categoria.nombre }}{% endblock %}
+
+{% block menu_content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'menu:menu_completo' %}">Menú</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'menu:categoria_detalle' plato.categoria.id %}">{{ plato.categoria.nombre }}</a>
+        </li>
+        <li class="breadcrumb-item active">{{ plato.nombre }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Imagen del plato -->
+    <div class="col-lg-6 mb-4">
+        {% if plato.imagen %}
+            <img src="{{ plato.imagen.url }}" class="img-fluid rounded shadow" alt="{{ plato.nombre }}">
+        {% else %}
+            <div class="bg-light rounded shadow d-flex align-items-center justify-content-center" style="height: 400px;">
+                <i class="fas fa-utensils fa-5x text-muted"></i>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Información del plato -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <!-- Título y badges -->
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="h2">{{ plato.nombre }}</h1>
+                    <div>
+                        {% if plato.nuevo %}
+                            <span class="badge bg-primary">Nuevo</span>
+                        {% endif %}
+                        {% if plato.destacado %}
+                            <span class="badge bg-warning">Destacado</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Descripción -->
+                <p class="lead">{{ plato.descripcion }}</p>
+                
+                <!-- Características -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i> 
+                            <strong>Tiempo:</strong> {{ plato.tiempo_preparacion }} min
+                        </small>
+                    </div>
+                    {% if plato.calorias %}
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="fas fa-fire"></i> 
+                            <strong>Calorías:</strong> {{ plato.calorias }}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Características dietéticas -->
+                <div class="mb-3">
+                    {% if plato.es_vegetariano %}
+                        <span class="badge bg-success me-2">
+                            <i class="fas fa-leaf"></i> Vegetariano
+                        </span>
+                    {% endif %}
+                    {% if plato.es_vegano %}
+                        <span class="badge bg-success me-2">Vegano</span>
+                    {% endif %}
+                    {% if plato.sin_gluten %}
+                        <span class="badge bg-warning me-2">Sin Gluten</span>
+                    {% endif %}
+                    {% if plato.es_picante %}
+                        <span class="badge bg-danger me-2">
+                            Picante 
+                            {% for i in "x"|ljust:plato.nivel_picante %}
+                                <i class="fas fa-pepper-hot"></i>
+                            {% endfor %}
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Ingredientes -->
+                {% if plato.ingredientes.exists %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-list"></i> Ingredientes:</h6>
+                    <div class="row">
+                        {% for ingrediente in plato.ingredientes.all %}
+                            <div class="col-6 col-md-4 mb-1">
+                                <small class="{% if ingrediente.es_alergeno %}text-warning{% endif %}">
+                                    {{ ingrediente.nombre }}
+                                    {% if ingrediente.es_alergeno %}
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Alérgenos -->
+                {% if plato.alergenos %}
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Alérgenos:</h6>
+                    <p class="mb-0">{{ plato.alergenos|join:", " }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- Opciones de personalización -->
+                {% if plato.opciones_personalizacion.exists %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-cogs"></i> Personaliza tu plato:</h6>
+                    {% for opcion in plato.opciones_personalizacion.all %}
+                        {% if opcion.disponible %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="opcion_{{ opcion.id }}" 
+                                   data-precio="{{ opcion.precio_adicional }}">
+                            <label class="form-check-label" for="opcion_{{ opcion.id }}">
+                                {{ opcion.nombre }}
+                                {% if opcion.precio_adicional > 0 %}
+                                    <span class="text-success">(+${{ opcion.precio_adicional }})</span>
+                                {% endif %}
+                                {% if opcion.descripcion %}
+                                    <br><small class="text-muted">{{ opcion.descripcion }}</small>
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Precio -->
+                <div class="mb-4">
+                    {% if plato.tiene_oferta %}
+                        <div class="mb-2">
+                            <span class="h6 text-muted" style="text-decoration: line-through;">
+                                Precio normal: ${{ plato.precio }}
+                            </span>
+                            <span class="badge bg-danger ms-2">-{{ plato.descuento_porcentaje }}%</span>
+                        </div>
+                        <div class="h3 text-success mb-0">
+                            Precio oferta: $<span id="precio-final">{{ plato.precio_oferta }}</span>
+                        </div>
+                    {% else %}
+                        <div class="h3 text-success mb-0">
+                            Precio: $<span id="precio-final">{{ plato.precio }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Instrucciones especiales -->
+                <div class="mb-3">
+                    <label for="instrucciones-especiales">Instrucciones especiales (opcional):</label>
+                    <textarea class="form-control" id="instrucciones-especiales" 
+                              placeholder="Ej: Sin cebolla, término medio, extra salsa..."
+                              maxlength="200" rows="2"></textarea>
+                    <small class="text-muted">Máximo 200 caracteres</small>
+                </div>
+                
+                <!-- Controles de cantidad y agregar al carrito -->
+                <div class="row align-items-center">
+                    <div class="col-md-4 mb-2">
+                        <label for="cantidad">Cantidad:</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(-1)">-</button>
+                            </div>
+                            <input type="number" class="form-control text-center" id="cantidad" value="1" min="1" max="10">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <button class="btn btn-primary btn-lg btn-block" onclick="agregarAlCarrito()">
+                            <i class="fas fa-cart-plus"></i> Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Disponibilidad -->
+                <div class="mt-3">
+                    <div id="estado-disponibilidad" class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Verificando disponibilidad...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Platos relacionados -->
+{% if platos_relacionados %}
+<div class="row mt-5">
+    <div class="col-12">
+        <h3>También te puede interesar</h3>
+        <div class="row">
+            {% for plato_relacionado in platos_relacionados %}
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card plato-card">
+                        {% if plato_relacionado.imagen %}
+                            <img src="{{ plato_relacionado.imagen.url }}" class="plato-imagen" alt="{{ plato_relacionado.nombre }}">
+                        {% else %}
+                            <div class="plato-imagen bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-utensils fa-2x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">{{ plato_relacionado.nombre }}</h6>
+                            <p class="card-text small">{{ plato_relacionado.descripcion|truncatewords:10 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-success font-weight-bold">
+                                    ${{ plato_relacionado.precio_actual }}
+                                </span>
+                                <a href="{% url 'menu:plato_detalle' plato_relacionado.id %}" class="btn btn-outline-primary btn-sm">
+                                    Ver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Sección de Reseñas -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-star text-warning"></i> 
+                        Reseñas y Calificaciones
+                    </h4>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="h5 mb-0">{{ plato.calcular_promedio_calificaciones|floatformat:1 }}</span>
+                            <span class="text-muted">/5</span>
+                        </div>
+                        <div class="me-3">
+                            <div class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= plato.calcular_promedio_calificaciones %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <small class="text-muted">({{ plato.obtener_total_resenas }} reseñas)</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Formulario para crear reseña -->
+                {% if user.is_authenticated %}
+                    <div class="mb-4">
+                        <h6>Deja tu reseña</h6>
+                        <form id="form-resena" class="row g-3">
+                            {% csrf_token %}
+                            <div class="col-md-3">
+                                <label class="form-label">Calificación</label>
+                                <div class="rating-input">
+                                    {% for i in "54321" %}
+                                        <input type="radio" name="calificacion" value="{{ i }}" id="star{{ i }}" class="d-none">
+                                        <label for="star{{ i }}" class="star-label">
+                                            <i class="far fa-star fa-lg text-warning"></i>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="comentario" class="form-label">Comentario</label>
+                                <textarea id="comentario" name="comentario" class="form-control" rows="3" 
+                                          placeholder="Comparte tu experiencia con este plato..." required></textarea>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Enviar Reseña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <a href="{% url 'usuarios:login' %}?next={{ request.path }}">Inicia sesión</a> 
+                        para dejar tu reseña y calificación.
+                    </div>
+                {% endif %}
+                
+                <!-- Lista de reseñas -->
+                <div id="lista-resenas">
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                        <p class="text-muted mt-2">Cargando reseñas...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para responder reseña (solo para staff) -->
+{% if user.is_staff %}
+<div class="modal fade" id="modalResponderResena" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Responder Reseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-respuesta-resena">
+                    <div class="mb-3">
+                        <label for="respuesta-restaurante" class="form-label">Respuesta del restaurante</label>
+                        <textarea id="respuesta-restaurante" class="form-control" rows="4" 
+                                  placeholder="Escribe tu respuesta a esta reseña..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="enviarRespuestaResena()">
+                    <i class="fas fa-reply"></i> Enviar Respuesta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .plato-imagen {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .plato-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+    }
+    
+    .plato-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .badge {
+        font-size: 0.8em;
+    }
+    
+    .opcion-personalizacion {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: border-color 0.2s;
+    }
+    
+    .opcion-personalizacion:hover {
+        border-color: #007bff;
+    }
+    
+    .opcion-personalizacion input[type="checkbox"]:checked + label {
+        color: #007bff;
+        font-weight: 600;
+    }
+    
+    /* Estilos para el sistema de reseñas */
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 5px;
+    }
+    
+    .star-label {
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    
+    .star-label:hover {
+        transform: scale(1.1);
+    }
+    
+    .star-label:hover ~ .star-label i {
+        color: #ffc107 !important;
+    }
+    
+    .resena-item {
+        transition: background-color 0.2s;
+    }
+    
+    .resena-item:hover {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin: -15px;
+    }
+    
+    .respuesta-restaurante {
+        border-left: 3px solid #007bff;
+    }
+    
+    .acciones-resena {
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+    
+    .resena-item:hover .acciones-resena {
+        opacity: 1;
+    }
+    
+    /* Estilos para las estrellas de calificación promedio */
+    .text-warning .fas.fa-star,
+    .text-warning .far.fa-star {
+        font-size: 1.2em;
+    }
+    
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+        .rating-input {
+            justify-content: center;
+        }
+        
+        .resena-item .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        
+        .resena-item .d-flex .text-muted {
+            margin-top: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+let precioBase = parseFloat('{{ plato.precio_actual|default:"0" }}') || 0;
+
+function cambiarCantidad(cambio) {
+    const cantidadInput = document.getElementById('cantidad');
+    if (cantidadInput) {
+        let cantidad = parseInt(cantidadInput.value) + cambio;
+        cantidad = Math.max(1, Math.min(10, cantidad));
+        cantidadInput.value = cantidad;
+        actualizarPrecio();
+    }
+}
+
+function actualizarPrecio() {
+    let precio = precioBase;
+    const cantidadInput = document.getElementById('cantidad');
+    
+    if (cantidadInput) {
+        const cantidad = parseInt(cantidadInput.value) || 1;
+        
+        // Sumar opciones de personalización
+        const opciones = document.querySelectorAll('input[type="checkbox"]:checked');
+        opciones.forEach(opcion => {
+            const precioOpcion = parseFloat(opcion.dataset.precio) || 0;
+            precio += precioOpcion;
+        });
+        
+        const precioTotal = (precio * cantidad).toFixed(2);
+        const precioFinalElement = document.getElementById('precio-final');
+        if (precioFinalElement) {
+            precioFinalElement.textContent = precioTotal;
+        }
+    }
+}
+
+function agregarAlCarrito() {
+    const cantidadInput = document.getElementById('cantidad');
+    const instruccionesInput = document.getElementById('instrucciones-especiales');
+    
+    if (!cantidadInput) {
+        mostrarNotificacion('Error: No se pudo obtener la cantidad', 'error');
+        return;
+    }
+    
+    const cantidad = cantidadInput.value;
+    const opciones = [];
+    const instrucciones = instruccionesInput ? instruccionesInput.value : '';
+    
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(opcion => {
+        const opcionId = opcion.id.replace('opcion_', '');
+        if (opcionId) {
+            opciones.push(parseInt(opcionId));
+        }
+    });
+    
+    fetch('{% url "pedidos:agregar_al_carrito" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            plato_id: parseInt('{{ plato.id|default:"0" }}') || 0,
+            cantidad: parseInt(cantidad),
+            opciones: opciones,
+            instrucciones: instrucciones
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion(data.message, 'success');
+            if (data.carrito_items !== undefined) {
+                actualizarContadorCarrito(data.carrito_items);
+            }
+        } else {
+            mostrarNotificacion(data.error || 'Error desconocido', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al agregar al carrito', 'error');
+    });
+}
+
+function mostrarNotificacion(mensaje, tipo) {
+    const notificacion = document.createElement('div');
+    notificacion.className = `alert alert-${tipo === 'success' ? 'success' : 'danger'} position-fixed`;
+    notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notificacion.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    setTimeout(() => {
+        if (notificacion.parentElement) {
+            notificacion.remove();
+        }
+    }, 3000);
+}
+
+function actualizarContadorCarrito(cantidad) {
+    const contador = document.getElementById('carrito-contador');
+    if (contador) {
+        contador.textContent = cantidad;
+        contador.style.display = cantidad > 0 ? 'inline' : 'none';
+    }
+}
+
+function verificarDisponibilidad() {
+    fetch(`{% url 'menu:verificar_disponibilidad' plato.id %}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const estadoDiv = document.getElementById('estado-disponibilidad');
+            if (estadoDiv) {
+                if (data.disponible) {
+                    estadoDiv.className = 'alert alert-success';
+                    estadoDiv.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        Disponible ahora (tiempo de preparación: ${data.tiempo_preparacion || 'N/A'} min)
+                    `;
+                } else {
+                    estadoDiv.className = 'alert alert-warning';
+                    estadoDiv.innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        No disponible en este momento
+                    `;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error verificando disponibilidad:', error);
+            const estadoDiv = document.getElementById('estado-disponibilidad');
+            if (estadoDiv) {
+                estadoDiv.className = 'alert alert-secondary';
+                estadoDiv.innerHTML = `
+                    <i class="fas fa-question-circle"></i> 
+                    No se pudo verificar la disponibilidad
+                `;
+            }
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar disponibilidad al cargar
+    verificarDisponibilidad();
+    
+    // Actualizar precio cuando cambian las opciones
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', actualizarPrecio);
+    });
+    
+    const cantidadInput = document.getElementById('cantidad');
+    if (cantidadInput) {
+        cantidadInput.addEventListener('input', actualizarPrecio);
+    }
+    
+    // Inicializar precio
+    actualizarPrecio();
+    
+    // Cargar reseñas al cargar la página
+    cargarResenas();
+    
+    // Configurar sistema de estrellas
+    configurarSistemaEstrellas();
+    
+    // Configurar formulario de reseña
+    const formResena = document.getElementById('form-resena');
+    if (formResena) {
+        formResena.addEventListener('submit', enviarResena);
+    }
+});
+
+// Sistema de estrellas interactivo
+function configurarSistemaEstrellas() {
+    const starLabels = document.querySelectorAll('.star-label');
+    const starInputs = document.querySelectorAll('input[name="calificacion"]');
+    
+    starLabels.forEach((label, index) => {
+        label.addEventListener('mouseenter', () => {
+            // Resaltar estrellas hasta la actual
+            starLabels.forEach((l, i) => {
+                if (i <= index) {
+                    l.querySelector('i').className = 'fas fa-star fa-lg text-warning';
+                } else {
+                    l.querySelector('i').className = 'far fa-star fa-lg text-warning';
+                }
+            });
+        });
+        
+        label.addEventListener('click', () => {
+            // Seleccionar estrella
+            starInputs[index].checked = true;
+            actualizarEstrellasSeleccionadas();
+        });
+    });
+    
+    // Restaurar estrellas cuando sale del área
+    document.querySelector('.rating-input').addEventListener('mouseleave', actualizarEstrellasSeleccionadas);
+}
+
+function actualizarEstrellasSeleccionadas() {
+    const selectedRating = document.querySelector('input[name="calificacion"]:checked');
+    const starLabels = document.querySelectorAll('.star-label');
+    
+    starLabels.forEach((label, index) => {
+        const starIcon = label.querySelector('i');
+        if (selectedRating && (5 - index) <= parseInt(selectedRating.value)) {
+            starIcon.className = 'fas fa-star fa-lg text-warning';
+        } else {
+            starIcon.className = 'far fa-star fa-lg text-warning';
+        }
+    });
+}
+
+// Cargar reseñas del plato
+function cargarResenas() {
+    const listaResenas = document.getElementById('lista-resenas');
+    
+    fetch(`{% url 'menu:obtener_resenas_plato' plato.id %}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarResenas(data.resenas);
+            } else {
+                mostrarErrorResenas(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando reseñas:', error);
+            mostrarErrorResenas('Error al cargar las reseñas');
+        });
+}
+
+// Mostrar reseñas en la interfaz
+function mostrarResenas(resenas) {
+    const listaResenas = document.getElementById('lista-resenas');
+    
+    if (resenas.length === 0) {
+        listaResenas.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-comments text-muted fa-2x mb-2"></i>
+                <p class="text-muted">No hay reseñas aún. ¡Sé el primero en opinar!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    resenas.forEach(resena => {
+        html += `
+            <div class="resena-item border-bottom pb-3 mb-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <strong>${resena.cliente_nombre}</strong>
+                        <div class="text-warning">
+                            ${resena.estrellas}
+                        </div>
+                    </div>
+                    <small class="text-muted">${resena.fecha}</small>
+                </div>
+                <p class="mb-2">${resena.comentario}</p>
+                
+                ${resena.respuesta_restaurante ? `
+                    <div class="respuesta-restaurante bg-light p-3 rounded ms-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-reply text-primary me-2"></i>
+                            <strong class="text-primary">Respuesta del restaurante</strong>
+                            <small class="text-muted ms-2">${resena.fecha_respuesta}</small>
+                        </div>
+                        <p class="mb-0">${resena.respuesta_restaurante}</p>
+                    </div>
+                ` : ''}
+                
+                <div class="acciones-resena mt-2">
+                    ${resena.puede_editar ? `
+                        <button class="btn btn-sm btn-outline-primary me-2" onclick="editarResena(${resena.id})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    ` : ''}
+                    
+                    ${resena.puede_responder ? `
+                        <button class="btn btn-sm btn-outline-success me-2" onclick="abrirModalRespuesta(${resena.id})">
+                            <i class="fas fa-reply"></i> Responder
+                        </button>
+                    ` : ''}
+                    
+                    ${resena.puede_editar ? `
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarResena(${resena.id})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    listaResenas.innerHTML = html;
+}
+
+// Mostrar error al cargar reseñas
+function mostrarErrorResenas(mensaje) {
+    const listaResenas = document.getElementById('lista-resenas');
+    listaResenas.innerHTML = `
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> ${mensaje}
+        </div>
+    `;
+}
+
+// Enviar reseña
+function enviarResena(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const calificacion = formData.get('calificacion');
+    const comentario = formData.get('comentario');
+    
+    if (!calificacion) {
+        mostrarNotificacion('Por favor selecciona una calificación', 'warning');
+        return;
+    }
+    
+    if (!comentario.trim()) {
+        mostrarNotificacion('Por favor escribe un comentario', 'warning');
+        return;
+    }
+    
+    fetch(`{% url 'menu:crear_resena' plato.id %}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion(data.message, 'success');
+            e.target.reset();
+            actualizarEstrellasSeleccionadas();
+            cargarResenas();
+            actualizarCalificacionPromedio(data.calificacion_promedio);
+        } else {
+            mostrarNotificacion(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al enviar la reseña', 'error');
+    });
+}
+
+// Actualizar calificación promedio en la interfaz
+function actualizarCalificacionPromedio(nuevoPromedio) {
+    const promedioElement = document.querySelector('.h5.mb-0');
+    if (promedioElement) {
+        promedioElement.textContent = parseFloat(nuevoPromedio).toFixed(1);
+    }
+    
+    // Actualizar estrellas visuales - compatibilidad con navegadores antiguos
+    const estrellasContainer = promedioElement && promedioElement.nextElementSibling && promedioElement.nextElementSibling.nextElementSibling;
+    if (estrellasContainer) {
+        estrellasContainer.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const iconClass = i <= nuevoPromedio ? 'fas fa-star' : 'far fa-star';
+            estrellasContainer.innerHTML += `<i class="${iconClass}"></i>`;
+        }
+    }
+}
+
+// Editar reseña
+function editarResena(resenaId) {
+    // Implementar edición de reseña
+    mostrarNotificacion('Función de edición en desarrollo', 'info');
+}
+
+// Eliminar reseña
+function eliminarResena(resenaId) {
+    if (!resenaId) {
+        mostrarNotificacion('Error: ID de reseña no válido', 'error');
+        return;
+    }
+    
+    if (confirm('¿Estás seguro de que quieres eliminar tu reseña?')) {
+        fetch(`{% url 'menu:eliminar_resena' 0 %}`.replace('0', resenaId), {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                mostrarNotificacion(data.message || 'Reseña eliminada exitosamente', 'success');
+                cargarResenas();
+                if (data.calificacion_promedio) {
+                    actualizarCalificacionPromedio(data.calificacion_promedio);
+                }
+            } else {
+                mostrarNotificacion(data.error || 'Error desconocido al eliminar la reseña', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarNotificacion('Error de conexión al eliminar la reseña', 'error');
+        });
+    }
+}
+
+// Abrir modal para responder reseña
+function abrirModalRespuesta(resenaId) {
+    if (!resenaId) {
+        mostrarNotificacion('Error: ID de reseña no válido', 'error');
+        return;
+    }
+    
+    const modalElement = document.getElementById('modalResponderResena');
+    if (!modalElement) {
+        mostrarNotificacion('Error: Modal no encontrado', 'error');
+        return;
+    }
+    
+    modalElement.dataset.resenaId = resenaId;
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+}
+
+// Enviar respuesta del restaurante
+function enviarRespuestaResena() {
+    const resenaId = document.getElementById('modalResponderResena').dataset.resenaId;
+    const respuesta = document.getElementById('respuesta-restaurante').value.trim();
+    
+    if (!respuesta) {
+        mostrarNotificacion('Por favor escribe una respuesta', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('respuesta', respuesta);
+    
+    fetch(`{% url 'menu:responder_resena' 0 %}`.replace('0', resenaId), {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion(data.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('modalResponderResena')).hide();
+            document.getElementById('respuesta-restaurante').value = '';
+            cargarResenas();
+        } else {
+            mostrarNotificacion(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al enviar la respuesta', 'error');
+    });
+}
+</script>
+{% endblock %}

@@ -3,40 +3,40 @@
 {% block title %}Inicio - Restaurante GYZ{% endblock %}
 
 {% block content %}
+
+{% load static %}
 <!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
+<section class="hero-section text-white d-flex align-items-center">
+    <div class="overlay"></div>
+    <div class="container position-relative">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">
+                <h1 class="display-3 fw-bold mb-4 animate__animated animate__fadeInDown">
                     Bienvenido a Restaurante GYZ
                 </h1>
-                <p class="lead mb-4">
+                <p class="lead mb-4 animate__animated animate__fadeInUp">
                     Descubre la mejor experiencia gastronómica con nuestros platos únicos 
                     preparados con ingredientes frescos y técnicas culinarias tradicionales.
                 </p>
                 {% if not user.is_authenticated %}
-                    <div class="d-flex gap-3">
-                        <a href="{% url 'usuarios:registro' %}" class="btn btn-light btn-lg">
+                    <div class="d-flex gap-3 flex-wrap animate__animated animate__fadeInUp">
+                        <a href="{% url 'usuarios:registro' %}" class="btn btn-light btn-lg shadow">
                             <i class="fas fa-user-plus me-2"></i>Registrarse
                         </a>
-                        <a href="{% url 'usuarios:login' %}" class="btn btn-outline-light btn-lg">
+                        <a href="{% url 'usuarios:login' %}" class="btn btn-outline-light btn-lg shadow">
                             <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
                         </a>
                     </div>
                 {% else %}
-                    <div class="d-flex gap-3">
-                        <a href="#menu" class="btn btn-light btn-lg">
+                    <div class="d-flex gap-3 flex-wrap animate__animated animate__fadeInUp">
+                        <a href="#menu" class="btn btn-light btn-lg shadow">
                             <i class="fas fa-utensils me-2"></i>Ver Menú
                         </a>
-                        <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-light btn-lg">
+                        <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-light btn-lg shadow">
                             <i class="fas fa-user me-2"></i>Mi Perfil
                         </a>
                     </div>
                 {% endif %}
-            </div>
-            <div class="col-lg-6 text-center">
-                <i class="fas fa-utensils" style="font-size: 8rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
@@ -54,7 +54,7 @@
         
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
+                <div class="card feature-card h-100 text-center p-4">
                     <div class="card-body">
                         <i class="fas fa-leaf text-success mb-3" style="font-size: 3rem;"></i>
                         <h5 class="card-title">Ingredientes Frescos</h5>
@@ -67,7 +67,7 @@
             </div>
             
             <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
+                <div class="card feature-card h-100 text-center p-4">
                     <div class="card-body">
                         <i class="fas fa-star text-warning mb-3" style="font-size: 3rem;"></i>
                         <h5 class="card-title">Experiencia Única</h5>
@@ -80,7 +80,7 @@
             </div>
             
             <div class="col-md-4">
-                <div class="card h-100 text-center p-4">
+                <div class="card feature-card h-100 text-center p-4">
                     <div class="card-body">
                         <i class="fas fa-heart text-danger mb-3" style="font-size: 3rem;"></i>
                         <h5 class="card-title">Atención Personalizada</h5>
@@ -107,7 +107,7 @@
         
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
-                <div class="card h-100">
+                <div class="card menu-card h-100">
                     <div class="card-body text-center">
                         <i class="fas fa-drumstick-bite text-primary mb-3" style="font-size: 2.5rem;"></i>
                         <h5 class="card-title">Pollo a la Parrilla</h5>
@@ -118,7 +118,7 @@
             </div>
             
             <div class="col-md-6 col-lg-3">
-                <div class="card h-100">
+                <div class="card menu-card h-100">
                     <div class="card-body text-center">
                         <i class="fas fa-fish text-info mb-3" style="font-size: 2.5rem;"></i>
                         <h5 class="card-title">Salmón Asado</h5>
@@ -129,7 +129,7 @@
             </div>
             
             <div class="col-md-6 col-lg-3">
-                <div class="card h-100">
+                <div class="card menu-card h-100">
                     <div class="card-body text-center">
                         <i class="fas fa-hamburger text-warning mb-3" style="font-size: 2.5rem;"></i>
                         <h5 class="card-title">Hamburguesa Gourmet</h5>
@@ -140,7 +140,7 @@
             </div>
             
             <div class="col-md-6 col-lg-3">
-                <div class="card h-100">
+                <div class="card menu-card h-100">
                     <div class="card-body text-center">
                         <i class="fas fa-pizza-slice text-danger mb-3" style="font-size: 2.5rem;"></i>
                         <h5 class="card-title">Pizza Artesanal</h5>
@@ -165,14 +165,12 @@
         
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card testimonial-card h-100">
                     <div class="card-body text-center">
                         <div class="mb-3">
+                            {% for i in "12345" %}
                             <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
                         </div>
                         <p class="card-text">
                             "Excelente comida y servicio. El ambiente es muy acogedor y los platos están deliciosos."
@@ -183,14 +181,12 @@
             </div>
             
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card testimonial-card h-100">
                     <div class="card-body text-center">
                         <div class="mb-3">
+                            {% for i in "12345" %}
                             <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
                         </div>
                         <p class="card-text">
                             "La mejor experiencia gastronómica que he tenido. Definitivamente volveré."
@@ -201,14 +197,12 @@
             </div>
             
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card testimonial-card h-100">
                     <div class="card-body text-center">
                         <div class="mb-3">
+                            {% for i in "12345" %}
                             <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
-                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
                         </div>
                         <p class="card-text">
                             "Platos únicos y sabores increíbles. El personal es muy amable y profesional."
@@ -222,40 +216,48 @@
 </section>
 
 <!-- Contacto -->
-<section id="contacto" class="py-5 bg-dark text-white">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
-                <h3 class="mb-4">Contáctanos</h3>
-                <p class="mb-4">
-                    ¿Tienes alguna pregunta o quieres hacer una reserva? 
-                    No dudes en contactarnos.
-                </p>
-                <div class="mb-3">
-                    <i class="fas fa-map-marker-alt me-3"></i>
-                    <span>123 Calle Principal, Ciudad</span>
-                </div>
-                <div class="mb-3">
-                    <i class="fas fa-phone me-3"></i>
-                    <span>(123) 456-7890</span>
-                </div>
-                <div class="mb-3">
-                    <i class="fas fa-envelope me-3"></i>
-                    <span>info@restaurantegyz.com</span>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <h3 class="mb-4">Horarios</h3>
-                <div class="row">
-                    <div class="col-6">
-                        <p><strong>Lunes - Viernes:</strong><br>12:00 PM - 10:00 PM</p>
-                    </div>
-                    <div class="col-6">
-                        <p><strong>Sábado - Domingo:</strong><br>11:00 AM - 11:00 PM</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %} 
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Fondo hero con imagen */
+.hero-section {
+    position: relative;
+    min-height: 90vh;
+    background: url("{% static 'imagenes/fondo-restaurante.png' %}") center center / cover no-repeat;
+    
+}
+.hero-section .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+}
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+.btn-lg {
+    border-radius: 50px;
+    padding: 12px 30px;
+    transition: all 0.3s ease;
+}
+.btn-lg:hover {
+    transform: translateY(-3px);
+}
+
+/* Tarjetas con efecto hover */
+.feature-card, .menu-card, .testimonial-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover, .menu-card:hover, .testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

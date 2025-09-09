@@ -1,0 +1,206 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .menu-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .categoria-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .categoria-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .plato-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .plato-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .plato-imagen {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .precio-original {
+        text-decoration: line-through;
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    
+    .precio-oferta {
+        color: #e74c3c;
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    
+    .badge-personalizado {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+    
+    .filtros-menu {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+    
+    .nivel-picante {
+        color: #ff6b35;
+    }
+    
+    .tiempo-prep {
+        color: #17a2b8;
+    }
+    
+    .search-bar {
+        position: relative;
+    }
+    
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .search-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .search-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .search-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="menu-header text-center">
+    <div class="container">
+        <h1 class="display-4 mb-3">{% block menu_title %}Nuestro Menú{% endblock %}</h1>
+        <p class="lead">{% block menu_subtitle %}Descubre nuestros deliciosos platos preparados con ingredientes frescos{% endblock %}</p>
+        
+        <!-- Barra de búsqueda -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-6">
+                <div class="search-bar">
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-lg" 
+                               id="buscar-platos" 
+                               placeholder="Buscar platos...">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="resultados-busqueda" class="search-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% block menu_content %}
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('buscar-platos');
+    const searchResults = document.getElementById('resultados-busqueda');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`{% url 'menu:buscar_platos' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        mostrarResultados(data.platos);
+                    })
+                    .catch(error => {
+                        console.error('Error en búsqueda:', error);
+                    });
+            }, 300);
+        });
+        
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+    
+    function mostrarResultados(platos) {
+        if (platos.length === 0) {
+            searchResults.innerHTML = '<div class="search-item text-muted">No se encontraron platos</div>';
+        } else {
+            searchResults.innerHTML = platos.map(plato => `
+                <div class="search-item" onclick="window.location.href='${plato.url}'">
+                    <div class="d-flex align-items-center">
+                        ${plato.imagen ? `<img src="${plato.imagen}" alt="${plato.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 1rem;">` : ''}
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${plato.nombre}</h6>
+                            <small class="text-muted">${plato.descripcion}</small>
+                            <div class="text-success font-weight-bold">$${plato.precio}</div>
+                        </div>
+                        <span class="badge bg-secondary">${plato.categoria}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        searchResults.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

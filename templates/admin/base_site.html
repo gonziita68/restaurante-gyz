@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
+{% endblock %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<div id="branding">
+    <img src="{% static 'admin/img/logo-restaurante.svg' %}" alt="Restaurante GYZ Logo" id="admin-logo">
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">Restaurante GYZ - Administración</a></h1>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

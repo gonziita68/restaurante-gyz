@@ -1,0 +1,252 @@
+{% extends 'menu/base_menu.html' %}
+{% load static %}
+
+{% block menu_title %}{{ categoria.nombre }}{% endblock %}
+{% block menu_subtitle %}{{ categoria.descripcion|default:"Explora nuestros deliciosos platos" }}{% endblock %}
+
+{% block menu_content %}
+<!-- Filtros -->
+<div class="filtros-menu">
+    <h5><i class="fas fa-filter"></i> Filtros</h5>
+    <form method="get" id="filtros-form">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="vegetariano" name="vegetariano" 
+                           {% if filtros.vegetariano %}checked{% endif %}>
+                    <label class="form-check-label" for="vegetariano">
+                        <i class="fas fa-leaf text-success"></i> Vegetariano
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sin_gluten" name="sin_gluten"
+                           {% if filtros.sin_gluten %}checked{% endif %}>
+                    <label class="form-check-label" for="sin_gluten">
+                        <i class="fas fa-wheat text-warning"></i> Sin Gluten
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="precio_max">Precio máximo:</label>
+                <input type="range" class="form-control-range" id="precio_max" name="precio_max" 
+                       min="0" max="100" value="{{ filtros.precio_max|default:100 }}"
+                       oninput="document.getElementById('precio_value').textContent = this.value">
+                <small>$<span id="precio_value">{{ filtros.precio_max|default:100 }}</span></small>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'menu:menu_completo' %}">Menú</a>
+        </li>
+        <li class="breadcrumb-item active">{{ categoria.nombre }}</li>
+    </ol>
+</nav>
+
+<!-- Platos de la categoría -->
+<div class="row">
+    {% for plato in platos %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card plato-card">
+                <div class="position-relative">
+                    {% if plato.imagen %}
+                        <img src="{{ plato.imagen.url }}" class="plato-imagen" alt="{{ plato.nombre }}">
+                    {% else %}
+                        <div class="plato-imagen bg-light d-flex align-items-center justify-content-center">
+                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Badges -->
+                    <div class="badge-personalizado">
+                        {% if plato.nuevo %}
+                            <span class="badge bg-primary me-1">Nuevo</span>
+                        {% endif %}
+                        {% if plato.tiene_oferta %}
+                            <span class="badge bg-danger me-1">-{{ plato.descuento_porcentaje }}%</span>
+                        {% endif %}
+                        {% if plato.es_vegetariano %}
+                            <span class="badge bg-success me-1"><i class="fas fa-leaf"></i></span>
+                        {% endif %}
+                        {% if plato.es_vegano %}
+                            <span class="badge bg-success me-1">Vegano</span>
+                        {% endif %}
+                        {% if plato.sin_gluten %}
+                            <span class="badge bg-warning me-1">Sin Gluten</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ plato.nombre }}</h5>
+                    <p class="card-text">{{ plato.descripcion|truncatewords:15 }}</p>
+                    
+                    <!-- Información adicional -->
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted tiempo-prep">
+                                <i class="fas fa-clock"></i> {{ plato.tiempo_preparacion }} min
+                            </small>
+                        </div>
+                        <div class="col-6 text-right">
+                            {% if plato.es_picante %}
+                                <small class="nivel-picante">
+                                    {% for i in "x"|ljust:plato.nivel_picante %}
+                                        <i class="fas fa-pepper-hot"></i>
+                                    {% endfor %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Alérgenos -->
+                    {% if plato.alergenos %}
+                        <div class="mb-2">
+                            <small class="text-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Contiene: {{ plato.alergenos|join:", " }}
+                            </small>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Precio y acciones -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if plato.tiene_oferta %}
+                                <small class="precio-original">${{ plato.precio }}</small><br>
+                                <span class="precio-oferta">${{ plato.precio_oferta }}</span>
+                            {% else %}
+                                <span class="h5 text-success mb-0">${{ plato.precio }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'menu:plato_detalle' plato.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            <button class="btn btn-primary btn-sm" onclick="agregarAlCarrito({{ plato.id }})">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4>No se encontraron platos</h4>
+                <p>No hay platos disponibles en esta categoría con los filtros seleccionados.</p>
+                <a href="{% url 'menu:categoria_detalle' categoria.id %}" class="btn btn-primary">
+                    Ver todos los platos
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Paginación (para implementar más adelante) -->
+{% if platos.has_other_pages %}
+<nav aria-label="Paginación de platos">
+    <ul class="pagination justify-content-center">
+        <!-- Implementar paginación aquí -->
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+function agregarAlCarrito(platoId) {
+    fetch('{% url "pedidos:agregar_al_carrito" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            plato_id: platoId,
+            cantidad: 1,
+            opciones: [],
+            instrucciones: ''
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            mostrarNotificacion(data.message, 'success');
+            // Actualizar contador del carrito si existe
+            actualizarContadorCarrito(data.carrito_items);
+        } else {
+            mostrarNotificacion(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al agregar al carrito', 'error');
+    });
+}
+
+function mostrarNotificacion(mensaje, tipo) {
+    // Crear notificación temporal
+    const notificacion = document.createElement('div');
+    notificacion.className = `alert alert-${tipo === 'success' ? 'success' : 'danger'} position-fixed`;
+    notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notificacion.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    // Auto-eliminar después de 3 segundos
+    setTimeout(() => {
+        if (notificacion.parentElement) {
+            notificacion.remove();
+        }
+    }, 3000);
+}
+
+function actualizarContadorCarrito(cantidad) {
+    const contador = document.getElementById('carrito-contador');
+    if (contador) {
+        contador.textContent = cantidad;
+        contador.style.display = cantidad > 0 ? 'inline' : 'none';
+    }
+}
+
+// Auto-submit form cuando cambian los filtros
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('#filtros-form input[type="checkbox"]');
+    const rangeInput = document.querySelector('#precio_max');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            document.getElementById('filtros-form').submit();
+        });
+    });
+    
+    let rangeTimeout;
+    if (rangeInput) {
+        rangeInput.addEventListener('input', function() {
+            clearTimeout(rangeTimeout);
+            rangeTimeout = setTimeout(() => {
+                document.getElementById('filtros-form').submit();
+            }, 1000);
+        });
+    }
+});
+</script>
+{% endblock %}

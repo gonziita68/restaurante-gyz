@@ -1,0 +1,360 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}{{ empleado.nombre_completo }} - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .empleado-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .empleado-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid white;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        height: 100%;
+    }
+    
+    .info-card h5 {
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+    
+    .info-value {
+        color: #495057;
+        text-align: right;
+    }
+    
+    .evaluacion-badge {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+        margin-top: 1rem;
+    }
+    
+    .btn-action {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header del empleado -->
+<div class="empleado-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <div class="empleado-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h1 class="mb-2">{{ empleado.nombre_completo }}</h1>
+                <p class="mb-2">
+                    <i class="fas fa-briefcase me-2"></i>
+                    <strong>{{ empleado.puesto.nombre }}</strong> en {{ empleado.departamento.nombre }}
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-id-badge me-2"></i>
+                    <strong>Número:</strong> {{ empleado.numero_empleado }}
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-calendar me-2"></i>
+                    <strong>Ingreso:</strong> {{ empleado.fecha_ingreso|date:"d/m/Y" }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Estadísticas rápidas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ empleado.evaluacion_actual }}/10</div>
+            <div class="stat-label">Evaluación Actual</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ empleado.edad }}</div>
+            <div class="stat-label">Años</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ empleado.tiempo_en_empresa.days|floatformat:0 }}</div>
+            <div class="stat-label">Días en Empresa</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">${{ empleado.salario_total_mensual|floatformat:2 }}</div>
+            <div class="stat-label">Salario Mensual</div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Información Personal -->
+        <div class="col-md-6">
+            <div class="info-card">
+                <h5><i class="fas fa-user me-2"></i>Información Personal</h5>
+                <div class="info-item">
+                    <span class="info-label">Cédula:</span>
+                    <span class="info-value">{{ empleado.cedula }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha Nacimiento:</span>
+                    <span class="info-value">{{ empleado.fecha_nacimiento|date:"d/m/Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Teléfono Personal:</span>
+                    <span class="info-value">{{ empleado.telefono_personal|default:"No especificado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Teléfono Emergencia:</span>
+                    <span class="info-value">{{ empleado.telefono_emergencia|default:"No especificado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Contacto Emergencia:</span>
+                    <span class="info-value">{{ empleado.contacto_emergencia|default:"No especificado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dirección:</span>
+                    <span class="info-value">{{ empleado.direccion|default:"No especificada" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Ciudad:</span>
+                    <span class="info-value">{{ empleado.ciudad|default:"No especificada" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Código Postal:</span>
+                    <span class="info-value">{{ empleado.codigo_postal|default:"No especificado" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información Laboral -->
+        <div class="col-md-6">
+            <div class="info-card">
+                <h5><i class="fas fa-briefcase me-2"></i>Información Laboral</h5>
+                <div class="info-item">
+                    <span class="info-label">Estado:</span>
+                    <span class="info-value">
+                        {% if empleado.estado == 'activo' %}
+                            <span class="badge bg-success">Activo</span>
+                        {% elif empleado.estado == 'inactivo' %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                        {% elif empleado.estado == 'vacaciones' %}
+                            <span class="badge bg-info">Vacaciones</span>
+                        {% elif empleado.estado == 'licencia' %}
+                            <span class="badge bg-warning">Licencia</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ empleado.get_estado_display }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tipo Contrato:</span>
+                    <span class="info-value">{{ empleado.get_tipo_contrato_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Salario Base:</span>
+                    <span class="info-value">${{ empleado.salario_base|floatformat:2 }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Comisión Ventas:</span>
+                    <span class="info-value">{{ empleado.comision_ventas }}%</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bonificaciones:</span>
+                    <span class="info-value">${{ empleado.bonificaciones|floatformat:2 }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Descuentos:</span>
+                    <span class="info-value">${{ empleado.descuentos|floatformat:2 }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Horas Semanales:</span>
+                    <span class="info-value">{{ empleado.horas_semanales }}h</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Turno Preferido:</span>
+                    <span class="info-value">{{ empleado.get_turno_preferido_display|default:"No especificado" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Evaluaciones -->
+        <div class="col-md-6">
+            <div class="info-card">
+                <h5><i class="fas fa-star me-2"></i>Evaluaciones</h5>
+                <div class="info-item">
+                    <span class="info-label">Evaluación Actual:</span>
+                    <span class="info-value">
+                        {% if empleado.evaluacion_actual >= 8 %}
+                            <span class="badge evaluacion-badge bg-success">{{ empleado.evaluacion_actual }}/10</span>
+                        {% elif empleado.evaluacion_actual >= 6 %}
+                            <span class="badge evaluacion-badge bg-warning">{{ empleado.evaluacion_actual }}/10</span>
+                        {% else %}
+                            <span class="badge evaluacion-badge bg-danger">{{ empleado.evaluacion_actual }}/10</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Evaluación:</span>
+                    <span class="info-value">{{ empleado.fecha_ultima_evaluacion|date:"d/m/Y"|default:"No evaluado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Próxima Evaluación:</span>
+                    <span class="info-value">{{ empleado.fecha_proxima_evaluacion|date:"d/m/Y"|default:"No programada" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Requiere Evaluación:</span>
+                    <span class="info-value">
+                        {% if empleado.requiere_evaluacion %}
+                            <span class="badge bg-warning">Sí</span>
+                        {% else %}
+                            <span class="badge bg-success">No</span>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{% url 'admin:empleados_evaluacion_add' %}?empleado={{ empleado.id }}" class="btn btn-primary btn-action">
+                        <i class="fas fa-plus me-1"></i>Nueva Evaluación
+                    </a>
+                    <a href="{% url 'empleados:evaluaciones_pendientes' %}" class="btn btn-outline-warning btn-action">
+                        <i class="fas fa-list me-1"></i>Ver Todas
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información Adicional -->
+        <div class="col-md-6">
+            <div class="info-card">
+                <h5><i class="fas fa-info-circle me-2"></i>Información Adicional</h5>
+                <div class="info-item">
+                    <span class="info-label">NSS:</span>
+                    <span class="info-value">{{ empleado.nss|default:"No especificado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">RFC:</span>
+                    <span class="info-value">{{ empleado.rfc|default:"No especificado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Banco/Cuenta:</span>
+                    <span class="info-value">{{ empleado.banco_cuenta|default:"No especificado" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha Creación:</span>
+                    <span class="info-value">{{ empleado.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Actualización:</span>
+                    <span class="info-value">{{ empleado.fecha_actualizacion|date:"d/m/Y H:i" }}</span>
+                </div>
+                
+                {% if empleado.notas %}
+                <div class="info-item">
+                    <span class="info-label">Notas:</span>
+                    <span class="info-value">{{ empleado.notas }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="action-buttons">
+                    <a href="{% url 'admin:empleados_empleado_change' empleado.id %}" class="btn btn-outline-primary btn-action">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </a>
+                    <a href="{% url 'empleados:dashboard' %}" class="btn btn-outline-secondary btn-action">
+                        <i class="fas fa-arrow-left me-1"></i>Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Resaltar información importante
+    const evaluacionBadge = document.querySelector('.evaluacion-badge');
+    if (evaluacionBadge) {
+        const evaluacion = parseInt(evaluacionBadge.textContent);
+        if (evaluacion <= 3) {
+            evaluacionBadge.classList.add('bg-danger');
+        } else if (evaluacion <= 5) {
+            evaluacionBadge.classList.add('bg-warning');
+        } else {
+            evaluacionBadge.classList.add('bg-success');
+        }
+    }
+});
+</script>
+{% endblock %}

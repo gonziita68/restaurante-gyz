@@ -1,0 +1,168 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Mis Pedidos - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pedidos-container {
+        padding: 2rem 0;
+    }
+    
+    .pedido-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .pedido-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .estado-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    
+    .estado-pendiente { background: #ffc107; color: #000; }
+    .estado-confirmado { background: #007bff; color: #fff; }
+    .estado-en_preparacion { background: #6f42c1; color: #fff; }
+    .estado-listo { background: #28a745; color: #fff; }
+    .estado-en_camino { background: #17a2b8; color: #fff; }
+    .estado-entregado { background: #198754; color: #fff; }
+    .estado-cancelado { background: #dc3545; color: #fff; }
+    
+    .sin-pedidos {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pedidos-container">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-receipt"></i> Mis Pedidos</h2>
+            <hr>
+        </div>
+    </div>
+    
+    {% if pedidos %}
+        {% for pedido in pedidos %}
+            <div class="card pedido-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Información del pedido -->
+                        <div class="col-md-3">
+                            <h6 class="mb-1">Pedido #{{ pedido.numero_pedido|slice:":8" }}...</h6>
+                            <small class="text-muted">{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        
+                        <!-- Estado -->
+                        <div class="col-md-2">
+                            <span class="estado-badge estado-{{ pedido.estado }}">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Tipo de entrega -->
+                        <div class="col-md-2">
+                            <i class="fas fa-{% if pedido.tipo_entrega == 'delivery' %}truck{% elif pedido.tipo_entrega == 'recogida' %}store{% else %}utensils{% endif %}"></i>
+                            {{ pedido.get_tipo_entrega_display }}
+                        </div>
+                        
+                        <!-- Total -->
+                        <div class="col-md-2">
+                            <h5 class="mb-0 text-success">${{ pedido.total }}</h5>
+                        </div>
+                        
+                        <!-- Tiempo restante -->
+                        <div class="col-md-2">
+                            {% if pedido.estado == 'entregado' %}
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle"></i> Entregado
+                                </span>
+                            {% elif pedido.estado == 'cancelado' %}
+                                <span class="text-danger">
+                                    <i class="fas fa-times-circle"></i> Cancelado
+                                </span>
+                            {% else %}
+                                <small class="text-muted">
+                                    {% if pedido.tiempo_restante_estimado > 0 %}
+                                        <i class="fas fa-clock"></i> {{ pedido.tiempo_restante_estimado }} min
+                                    {% else %}
+                                        <i class="fas fa-exclamation-triangle"></i> Retrasado
+                                    {% endif %}
+                                </small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Acciones -->
+                        <div class="col-md-1">
+                            <a href="{% url 'pedidos:detalle_pedido' pedido.id %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Items del pedido (preview) -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <small class="text-muted">
+                                <strong>Items:</strong>
+                                {% for item in pedido.items.all|slice:":3" %}
+                                    {{ item.cantidad }}x {{ item.plato.nombre }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if pedido.items.count > 3 %}
+                                    y {{ pedido.items.count|add:"-3" }} más...
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        <!-- Paginación -->
+        {% if pedidos.has_other_pages %}
+            <nav aria-label="Paginación de pedidos">
+                <ul class="pagination justify-content-center">
+                    {% if pedidos.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ pedidos.previous_page_number }}">Anterior</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            {{ pedidos.number }} de {{ pedidos.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if pedidos.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ pedidos.next_page_number }}">Siguiente</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="sin-pedidos">
+            <i class="fas fa-receipt fa-5x mb-3"></i>
+            <h4>No tienes pedidos aún</h4>
+            <p>¡Explora nuestro menú y realiza tu primer pedido!</p>
+            <a href="{% url 'menu:menu_completo' %}" class="btn btn-primary">
+                <i class="fas fa-utensils"></i> Ver Menú
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

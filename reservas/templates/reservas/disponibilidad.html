@@ -1,0 +1,493 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Reservar Mesa - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reservas-container {
+        padding: 2rem 0;
+    }
+    
+    .search-form {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+    
+    .mesa-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .mesa-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .mesa-card.selected {
+        border-color: #667eea;
+        background: #f8f9fa;
+    }
+    
+    .mesa-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .mesa-details {
+        flex-grow: 1;
+    }
+    
+    .mesa-precio {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .form-reserva {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 2rem;
+        display: none;
+    }
+    
+    .btn-reservar {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-reservar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .no-mesas {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+        display: none;
+    }
+    
+    .info-restaurante {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .horario-item {
+        background: #e9ecef;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    
+    .horario-item:hover {
+        border-color: #667eea;
+        background: #f8f9fa;
+    }
+    
+    .horario-item.selected {
+        border-color: #667eea;
+        background: #667eea;
+        color: white;
+    }
+    
+    .horario-item.disabled {
+        background: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container reservas-container">
+    <!-- Encabezado -->
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-calendar-alt"></i> Reservar Mesa</h2>
+            <p class="lead">Selecciona la fecha, hora y número de comensales para encontrar mesas disponibles.</p>
+        </div>
+    </div>
+    
+    <!-- Información del restaurante -->
+    {% if config %}
+    <div class="info-restaurante">
+        <div class="row">
+            <div class="col-md-4">
+                <h6><i class="fas fa-clock"></i> Horarios</h6>
+                <p class="mb-0">{{ config.hora_apertura }} - {{ config.hora_cierre }}</p>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-phone"></i> Contacto</h6>
+                <p class="mb-0">{{ config.telefono_contacto|default:"(123) 456-7890" }}</p>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-info-circle"></i> Reservas</h6>
+                <p class="mb-0">Hasta {{ config.tiempo_maximo_reserva_dias }} días antes</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Formulario de búsqueda -->
+    <div class="search-form">
+        <h4 class="mb-3">Buscar Disponibilidad</h4>
+        <form id="busqueda-form">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input type="date" class="form-control" id="fecha" name="fecha" 
+                           value="{{ fecha_default }}" min="{{ fecha_default }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="hora" class="form-label">Hora</label>
+                    <select class="form-control" id="hora" name="hora" required>
+                        <option value="">Seleccionar hora</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="comensales" class="form-label">Comensales</label>
+                    <select class="form-control" id="comensales" name="comensales" required>
+                        {% for i in "12345678910"|make_list %}
+                            <option value="{{ forloop.counter }}" {% if forloop.counter == 2 %}selected{% endif %}>
+                                {{ forloop.counter }} persona{{ forloop.counter|pluralize }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-light btn-lg w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin fa-3x"></i>
+        <p>Buscando mesas disponibles...</p>
+    </div>
+    
+    <!-- No hay mesas disponibles -->
+    <div class="no-mesas">
+        <i class="fas fa-calendar-times fa-5x mb-3"></i>
+        <h4>No hay mesas disponibles</h4>
+        <p>No encontramos mesas disponibles para la fecha y hora seleccionadas.</p>
+        <p>Intenta con otra fecha u horario.</p>
+    </div>
+    
+    <!-- Resultados -->
+    <div id="resultados-mesas" style="display: none;">
+        <h4>Mesas Disponibles</h4>
+        <div id="lista-mesas"></div>
+    </div>
+    
+    <!-- Formulario de reserva -->
+    <div class="form-reserva" id="form-reserva">
+        <h4><i class="fas fa-edit"></i> Completar Reserva</h4>
+        <form id="reserva-form">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="nombre_cliente">Nombre completo *</label>
+                        <input type="text" class="form-control" id="nombre_cliente" 
+                               value="{% if user.is_authenticated %}{{ user.first_name }} {{ user.last_name }}{% endif %}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="telefono_cliente">Teléfono *</label>
+                        <input type="tel" class="form-control" id="telefono_cliente" 
+                               value="{% if user.is_authenticated %}{{ user.telefono|default:'' }}{% endif %}" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="email_cliente">Email</label>
+                        <input type="email" class="form-control" id="email_cliente" 
+                               value="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ocasion_especial">Ocasión especial</label>
+                        <select class="form-control" id="ocasion_especial">
+                            <option value="">Ninguna</option>
+                            <option value="cumpleanos">Cumpleaños</option>
+                            <option value="aniversario">Aniversario</option>
+                            <option value="cita">Cita romántica</option>
+                            <option value="negocios">Comida de negocios</option>
+                            <option value="celebracion">Celebración</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="preferencia_ubicacion">Preferencia de ubicación</label>
+                        <select class="form-control" id="preferencia_ubicacion">
+                            <option value="cualquiera">Cualquiera</option>
+                            <option value="ventana">Junto a ventana</option>
+                            <option value="tranquilo">Área tranquila</option>
+                            <option value="animado">Área animada</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="solicitudes_especiales">Solicitudes especiales</label>
+                        <textarea class="form-control" id="solicitudes_especiales" rows="3" 
+                                  placeholder="Alergias, silla alta para bebé, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen de la reserva -->
+            <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle"></i> Resumen de tu reserva:</h6>
+                <div id="resumen-reserva"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-reservar">
+                <i class="fas fa-calendar-check"></i> Confirmar Reserva
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let mesaSeleccionada = null;
+let datosReserva = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar horarios cuando cambie la fecha
+    document.getElementById('fecha').addEventListener('change', cargarHorarios);
+    
+    // Buscar disponibilidad
+    document.getElementById('busqueda-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        buscarDisponibilidad();
+    });
+    
+    // Confirmar reserva
+    document.getElementById('reserva-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        confirmarReserva();
+    });
+    
+    // Cargar horarios para la fecha por defecto
+    cargarHorarios();
+});
+
+function cargarHorarios() {
+    const fecha = document.getElementById('fecha').value;
+    const comensales = document.getElementById('comensales').value;
+    const horaSelect = document.getElementById('hora');
+    
+    if (!fecha) return;
+    
+    horaSelect.innerHTML = '<option value="">Cargando...</option>';
+    
+    fetch(`{% url 'reservas:horarios_disponibles' %}?fecha=${fecha}&comensales=${comensales}`)
+    .then(response => response.json())
+    .then(data => {
+        horaSelect.innerHTML = '<option value="">Seleccionar hora</option>';
+        
+        if (data.horarios && data.horarios.length > 0) {
+            data.horarios.forEach(horario => {
+                const option = document.createElement('option');
+                option.value = horario.hora;
+                option.textContent = `${horario.hora} (${horario.mesas_disponibles} mesas)`;
+                horaSelect.appendChild(option);
+            });
+        } else {
+            horaSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        horaSelect.innerHTML = '<option value="">Error cargando horarios</option>';
+    });
+}
+
+function buscarDisponibilidad() {
+    const formData = new FormData(document.getElementById('busqueda-form'));
+    const params = new URLSearchParams(formData);
+    
+    // Mostrar loading
+    document.querySelector('.loading-spinner').style.display = 'block';
+    document.getElementById('resultados-mesas').style.display = 'none';
+    document.querySelector('.no-mesas').style.display = 'none';
+    document.getElementById('form-reserva').style.display = 'none';
+    
+    fetch(`{% url 'reservas:buscar_disponibilidad' %}?${params}`)
+    .then(response => response.json())
+    .then(data => {
+        document.querySelector('.loading-spinner').style.display = 'none';
+        
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        
+        if (data.mesas_disponibles && data.mesas_disponibles.length > 0) {
+            mostrarMesas(data.mesas_disponibles);
+            datosReserva = {
+                fecha: data.fecha,
+                hora: data.hora,
+                comensales: data.comensales
+            };
+        } else {
+            document.querySelector('.no-mesas').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        document.querySelector('.loading-spinner').style.display = 'none';
+        console.error('Error:', error);
+        alert('Error al buscar disponibilidad');
+    });
+}
+
+function mostrarMesas(mesas) {
+    const container = document.getElementById('lista-mesas');
+    container.innerHTML = '';
+    
+    mesas.forEach(mesa => {
+        const mesaDiv = document.createElement('div');
+        mesaDiv.className = 'mesa-card';
+        mesaDiv.onclick = () => seleccionarMesa(mesa, mesaDiv);
+        
+        mesaDiv.innerHTML = `
+            <div class="mesa-info">
+                <div class="mesa-details">
+                    <h5>Mesa ${mesa.numero}</h5>
+                    <p class="mb-1">${mesa.tipo} - ${mesa.ubicacion}</p>
+                    <small class="text-muted">Capacidad: ${mesa.capacidad_min}-${mesa.capacidad_max} personas</small>
+                </div>
+                <div class="mesa-precio">
+                    ${parseFloat(mesa.precio_base) > 0 ? '$' + mesa.precio_base : 'Gratis'}
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(mesaDiv);
+    });
+    
+    document.getElementById('resultados-mesas').style.display = 'block';
+}
+
+function seleccionarMesa(mesa, element) {
+    // Limpiar selección anterior
+    document.querySelectorAll('.mesa-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Seleccionar nueva mesa
+    element.classList.add('selected');
+    mesaSeleccionada = mesa;
+    
+    // Mostrar formulario y actualizar resumen
+    document.getElementById('form-reserva').style.display = 'block';
+    actualizarResumen();
+    
+    // Scroll al formulario
+    document.getElementById('form-reserva').scrollIntoView({ behavior: 'smooth' });
+}
+
+function actualizarResumen() {
+    if (!mesaSeleccionada || !datosReserva.fecha) return;
+    
+    const resumen = document.getElementById('resumen-reserva');
+    resumen.innerHTML = `
+        <strong>Mesa:</strong> ${mesaSeleccionada.numero} (${mesaSeleccionada.tipo})<br>
+        <strong>Fecha:</strong> ${new Date(datosReserva.fecha).toLocaleDateString()}<br>
+        <strong>Hora:</strong> ${datosReserva.hora}<br>
+        <strong>Comensales:</strong> ${datosReserva.comensales}<br>
+        <strong>Ubicación:</strong> ${mesaSeleccionada.ubicacion}
+    `;
+}
+
+function confirmarReserva() {
+    if (!mesaSeleccionada) {
+        alert('Selecciona una mesa primero');
+        return;
+    }
+    
+    const datos = {
+        mesa_id: mesaSeleccionada.id,
+        fecha: datosReserva.fecha,
+        hora: datosReserva.hora,
+        comensales: datosReserva.comensales,
+        nombre_cliente: document.getElementById('nombre_cliente').value,
+        telefono_cliente: document.getElementById('telefono_cliente').value,
+        email_cliente: document.getElementById('email_cliente').value,
+        ocasion_especial: document.getElementById('ocasion_especial').value,
+        preferencia_ubicacion: document.getElementById('preferencia_ubicacion').value,
+        solicitudes_especiales: document.getElementById('solicitudes_especiales').value,
+    };
+    
+    fetch('{% url "reservas:crear_reserva" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`¡Reserva creada exitosamente!\nCódigo: ${data.codigo_reserva.substr(0, 8)}`);
+            window.location.href = '{% url "reservas:mis_reservas" %}';
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al crear la reserva');
+    });
+}
+</script>
+{% endblock %}

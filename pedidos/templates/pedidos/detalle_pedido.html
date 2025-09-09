@@ -1,0 +1,413 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Pedido #{{ pedido.numero_pedido|slice:":8" }} - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detalle-container {
+        padding: 2rem 0;
+    }
+    
+    .pedido-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .estado-badge {
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+    
+    .estado-pendiente { background: #ffc107; color: #000; }
+    .estado-confirmado { background: #007bff; color: #fff; }
+    .estado-en_preparacion { background: #6f42c1; color: #fff; }
+    .estado-listo { background: #28a745; color: #fff; }
+    .estado-en_camino { background: #17a2b8; color: #fff; }
+    .estado-entregado { background: #198754; color: #fff; }
+    .estado-cancelado { background: #dc3545; color: #fff; }
+    
+    .item-pedido {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: white;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .timeline-item {
+        padding: 1rem 0;
+        border-left: 3px solid #e9ecef;
+        padding-left: 1.5rem;
+        margin-left: 1rem;
+        position: relative;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -0.5rem;
+        top: 1.5rem;
+        width: 1rem;
+        height: 1rem;
+        background: #e9ecef;
+        border-radius: 50%;
+    }
+    
+    .timeline-item.active::before {
+        background: #667eea;
+    }
+    
+    .btn-pagar {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-pagar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container detalle-container">
+    <!-- Header del pedido -->
+    <div class="pedido-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>Pedido #{{ pedido.numero_pedido|slice:":8" }}</h2>
+                <p class="mb-0">
+                    <i class="fas fa-calendar"></i> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}
+                    <span class="ms-3">
+                        <i class="fas fa-{{ pedido.tipo_entrega|yesno:'truck,store,utensils' }}"></i> 
+                        {{ pedido.get_tipo_entrega_display }}
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="estado-badge estado-{{ pedido.estado }}">
+                    {{ pedido.get_estado_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Información del pedido -->
+        <div class="col-lg-8">
+            <!-- Items del pedido -->
+            <div class="info-card">
+                <h5><i class="fas fa-utensils"></i> Items del Pedido</h5>
+                {% for item in pedido.items.all %}
+                    <div class="item-pedido">
+                        <div class="row align-items-center">
+                            <div class="col-2">
+                                {% if item.plato.imagen %}
+                                    <img src="{{ item.plato.imagen.url }}" 
+                                         class="img-fluid rounded" 
+                                         style="width: 60px; height: 60px; object-fit: cover;"
+                                         alt="{{ item.plato.nombre }}">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px;">
+                                        <i class="fas fa-utensils text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-1">{{ item.plato.nombre }}</h6>
+                                <small class="text-muted">{{ item.plato.categoria.nombre }}</small>
+                                
+                                {% if item.opciones_seleccionadas %}
+                                    <div class="mt-1">
+                                        {% for opcion in item.opciones_seleccionadas %}
+                                            <span class="badge bg-light">{{ opcion.nombre }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if item.instrucciones_especiales %}
+                                    <div class="mt-1">
+                                        <small class="text-info">
+                                            <em>"{{ item.instrucciones_especiales }}"</em>
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-2 text-center">
+                                <span class="badge bg-secondary">{{ item.cantidad }}x</span>
+                            </div>
+                            <div class="col-2 text-end">
+                                <strong>${{ item.total }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Información de entrega -->
+            <div class="info-card">
+                <h5><i class="fas fa-shipping-fast"></i> Información de Entrega</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Tipo:</strong> {{ pedido.get_tipo_entrega_display }}<br>
+                        {% if pedido.direccion_entrega %}
+                            <strong>Dirección:</strong> {{ pedido.direccion_entrega }}<br>
+                        {% endif %}
+                        {% if pedido.numero_mesa %}
+                            <strong>Mesa:</strong> {{ pedido.numero_mesa }}<br>
+                        {% endif %}
+                        <strong>Teléfono:</strong> {{ pedido.telefono_contacto }}<br>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Tiempo estimado:</strong> {{ pedido.tiempo_estimado_preparacion }} min<br>
+                        {% if pedido.tiempo_restante_estimado > 0 %}
+                            <strong>Tiempo restante:</strong> {{ pedido.tiempo_restante_estimado }} min<br>
+                        {% endif %}
+                        <strong>Método de pago:</strong> {{ pedido.get_metodo_pago_display }}<br>
+                    </div>
+                </div>
+                
+                {% if pedido.notas_entrega %}
+                    <div class="mt-2">
+                        <strong>Notas especiales:</strong><br>
+                        <p class="text-muted">{{ pedido.notas_entrega }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Resumen y acciones -->
+        <div class="col-lg-4">
+            <!-- Resumen del pago -->
+            <div class="info-card">
+                <h5><i class="fas fa-receipt"></i> Resumen</h5>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span>${{ pedido.subtotal }}</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Impuestos:</span>
+                    <span>${{ pedido.impuestos }}</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Delivery:</span>
+                    <span>${{ pedido.costo_delivery }}</span>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <strong>Total:</strong>
+                    <strong class="text-success">${{ pedido.total }}</strong>
+                </div>
+                
+                <!-- Estado del pago -->
+                <div class="mb-3">
+                    {% if pedido.pago_completado %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Pago completado
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Pago pendiente
+                        </div>
+                        
+                        {% if pedido.puede_cancelar %}
+                            <a href="{% url 'pagos:procesar_pago_pedido' pedido.id %}" 
+                               class="btn btn-pagar btn-block">
+                                <i class="fas fa-credit-card"></i> Procesar Pago
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <!-- Acciones -->
+                {% if pedido.puede_cancelar %}
+                    <button class="btn btn-outline-danger btn-block" 
+                            onclick="cancelarPedido({{ pedido.id }})">
+                        <i class="fas fa-times"></i> Cancelar Pedido
+                    </button>
+                {% endif %}
+            </div>
+            
+            <!-- Timeline del pedido -->
+            <div class="info-card">
+                <h5><i class="fas fa-history"></i> Historial</h5>
+                
+                <div class="timeline-item active">
+                    <strong>Pedido realizado</strong><br>
+                    <small class="text-muted">{{ pedido.fecha_pedido|date:"d/m H:i" }}</small>
+                </div>
+                
+                {% if pedido.fecha_confirmacion %}
+                    <div class="timeline-item active">
+                        <strong>Confirmado</strong><br>
+                        <small class="text-muted">{{ pedido.fecha_confirmacion|date:"d/m H:i" }}</small>
+                    </div>
+                {% endif %}
+                
+                {% if pedido.estado == 'en_preparacion' or pedido.estado == 'listo' or pedido.estado == 'en_camino' or pedido.estado == 'entregado' %}
+                    <div class="timeline-item active">
+                        <strong>En preparación</strong><br>
+                        <small class="text-muted">Preparando tu pedido</small>
+                    </div>
+                {% endif %}
+                
+                {% if pedido.fecha_listo %}
+                    <div class="timeline-item active">
+                        <strong>Listo</strong><br>
+                        <small class="text-muted">{{ pedido.fecha_listo|date:"d/m H:i" }}</small>
+                    </div>
+                {% endif %}
+                
+                {% if pedido.fecha_entrega %}
+                    <div class="timeline-item active">
+                        <strong>Entregado</strong><br>
+                        <small class="text-muted">{{ pedido.fecha_entrega|date:"d/m H:i" }}</small>
+                    </div>
+                {% endif %}
+                
+                {% if pedido.estado == 'cancelado' %}
+                    <div class="timeline-item" style="border-color: #dc3545;">
+                        <strong style="color: #dc3545;">Cancelado</strong><br>
+                        <small class="text-muted">Pedido cancelado</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para cancelar -->
+<div class="modal fade" id="cancelarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres cancelar este pedido?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener</button>
+                <form id="cancelar-form" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sí, cancelar pedido</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cancelarPedido(pedidoId) {
+    const modalElement = document.getElementById('cancelarModal');
+    const formElement = document.getElementById('cancelar-form');
+    
+    if (!modalElement || !formElement) {
+        console.error('No se encontraron los elementos del modal de cancelación');
+        return;
+    }
+    
+    try {
+        const modal = new bootstrap.Modal(modalElement);
+        formElement.action = `{% url 'pedidos:cancelar_pedido' 0 %}`.replace('0', pedidoId);
+        modal.show();
+    } catch (error) {
+        console.error('Error al mostrar el modal:', error);
+        // Fallback: mostrar confirmación simple
+        if (confirm('¿Estás seguro de que quieres cancelar este pedido?')) {
+            enviarCancelacion(pedidoId);
+        }
+    }
+}
+
+function enviarCancelacion(pedidoId) {
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+    fetch(`{% url 'pedidos:cancelar_pedido' 0 %}`.replace('0', pedidoId), {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion('Pedido cancelado exitosamente', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            mostrarNotificacion(data.error || 'Error al cancelar el pedido', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al cancelar el pedido', 'danger');
+    });
+}
+
+function mostrarNotificacion(mensaje, tipo) {
+    const notificacion = document.createElement('div');
+    notificacion.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+    notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notificacion.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    setTimeout(() => {
+        if (notificacion.parentElement) {
+            notificacion.remove();
+        }
+    }, 5000);
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar el formulario de cancelación para usar AJAX
+    const cancelarForm = document.getElementById('cancelar-form');
+    if (cancelarForm) {
+        cancelarForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const pedidoId = this.action.split('/').pop();
+            enviarCancelacion(pedidoId);
+        });
+    }
+});
+</script>
+{% endblock %}

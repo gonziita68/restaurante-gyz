@@ -1,0 +1,232 @@
+/* Estilos personalizados para el panel de administración de Django */
+
+/* Estilos generales y fondo */
+body {
+    background: url('../img/background-pattern.svg') repeat;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Estilos para el logo */
+#admin-logo {
+    height: 40px;
+    margin-right: 10px;
+    vertical-align: middle;
+    float: left;
+}
+
+#branding {
+    display: flex;
+    align-items: center;
+}
+
+/* Cambiar el color del encabezado principal */
+#header {
+    background: linear-gradient(135deg, #2c3e50, #1a252f);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-bottom: 3px solid #3498db;
+}
+
+/* Estilo para los enlaces en el encabezado */
+#header a:link, #header a:visited {
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+#header a:hover {
+    color: #3498db;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Estilo para el panel lateral */
+#nav-sidebar {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 10px;
+    overflow: hidden;
+}
+
+#nav-sidebar .module {
+    border-radius: 0;
+    margin-bottom: 0;
+    box-shadow: none;
+}
+
+/* Estilo para los elementos del menú lateral */
+#nav-sidebar a {
+    color: #2c3e50;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    padding: 10px 16px;
+}
+
+#nav-sidebar a:hover, #nav-sidebar a.section:hover {
+    background-color: #f8f9fa;
+    border-left: 3px solid #3498db;
+    color: #3498db;
+}
+
+/* Estilo para los módulos (widgets) */
+.module {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.module:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Cambiar el color de fondo del menú lateral */
+.module h2, .module caption, .inline-group h2 {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    color: #ffffff;
+    padding: 12px 15px;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+}
+
+/* Estilo para los botones de acción */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #ffffff;
+    border-radius: 4px;
+    border: none;
+    padding: 10px 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para los botones al pasar el mouse */
+.button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+    background: #2980b9;
+}
+
+/* Estilo para los botones de eliminar */
+.deletelink {
+    background: #e74c3c;
+    color: #ffffff;
+    border-radius: 4px;
+}
+
+/* Estilo para los botones de eliminar al pasar el mouse */
+.deletelink:hover {
+    background: #c0392b;
+}
+
+/* Estilo para las filas de las tablas al pasar el mouse */
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Estilo para los mensajes */
+.messagelist {
+    margin: 0 0 20px 0;
+    padding: 0;
+}
+
+.messagelist li {
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.messagelist li::before {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Estilo para los mensajes de éxito */
+.messagelist .success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: #ffffff;
+    border-left: 5px solid #27ae60;
+}
+
+/* Estilo para los mensajes de error */
+.messagelist .error {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #ffffff;
+    border-left: 5px solid #c0392b;
+}
+
+/* Estilo para los mensajes de advertencia */
+.messagelist .warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #ffffff;
+    border-left: 5px solid #e67e22;
+}
+
+/* Estilo para los mensajes de información */
+.messagelist .info {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #ffffff;
+    border-left: 5px solid #2980b9;
+}
+
+/* Estilo para los campos de formulario */
+input, textarea, select {
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    width: 100%;
+    max-width: 500px;
+    font-size: 14px;
+}
+
+/* Estilo para los campos de formulario al enfocar */
+input:focus, textarea:focus, select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+    background-color: #ffffff;
+    outline: none;
+}
+
+/* Estilo para las tablas */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+table thead th {
+    background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+    color: #2c3e50;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    border-bottom: 2px solid #3498db;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+table tbody td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}

@@ -1,0 +1,348 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Reserva - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detalle-container {
+        padding: 2rem 0;
+    }
+    
+    .reserva-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .reserva-info {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .estado-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .estado-pendiente { background: #ffc107; color: #000; }
+    .estado-confirmada { background: #007bff; color: #fff; }
+    .estado-en_curso { background: #28a745; color: #fff; }
+    .estado-completada { background: #198754; color: #fff; }
+    .estado-cancelada { background: #dc3545; color: #fff; }
+    .estado-no_show { background: #6c757d; color: #fff; }
+    
+    .info-item {
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: bold;
+        color: #495057;
+        min-width: 150px;
+        display: inline-block;
+    }
+    
+    .historial-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #007bff;
+    }
+    
+    .acciones-container {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .codigo-reserva {
+        background: #e9ecef;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-family: monospace;
+        font-size: 1.1em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container detalle-container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header de la reserva -->
+            <div class="reserva-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2><i class="fas fa-calendar-check"></i> Detalle de Reserva</h2>
+                        <p class="mb-0">Código: <span class="codigo-reserva">{{ reserva.codigo_reserva }}</span></p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="estado-badge estado-{{ reserva.estado }}">
+                            {{ reserva.get_estado_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información principal -->
+            <div class="reserva-info">
+                <h4><i class="fas fa-info-circle"></i> Información de la Reserva</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <span class="info-label">Cliente:</span>
+                            {{ reserva.nombre_cliente }}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono:</span>
+                            {{ reserva.telefono_cliente }}
+                        </div>
+                        {% if reserva.email_cliente %}
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            {{ reserva.email_cliente }}
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">Fecha:</span>
+                            {{ reserva.fecha_reserva|date:"d/m/Y" }}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hora:</span>
+                            {{ reserva.hora_reserva|time:"H:i" }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <span class="info-label">Mesa:</span>
+                            {{ reserva.mesa.numero }} ({{ reserva.mesa.tipo_mesa.nombre }})
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ubicación:</span>
+                            {{ reserva.mesa.get_ubicacion_display }}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Comensales:</span>
+                            {{ reserva.numero_comensales }} persona{{ reserva.numero_comensales|pluralize }}
+                        </div>
+                        {% if reserva.ocasion_especial %}
+                        <div class="info-item">
+                            <span class="info-label">Ocasión:</span>
+                            {{ reserva.get_ocasion_especial_display }}
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">Duración:</span>
+                            {{ reserva.duracion_estimada }} minutos
+                        </div>
+                    </div>
+                </div>
+                
+                {% if reserva.solicitudes_especiales %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="info-item">
+                            <span class="info-label">Solicitudes especiales:</span>
+                            {{ reserva.solicitudes_especiales }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if reserva.preferencia_ubicacion and reserva.preferencia_ubicacion != 'cualquiera' %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="info-item">
+                            <span class="info-label">Preferencia de ubicación:</span>
+                            {{ reserva.get_preferencia_ubicacion_display }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Información de tiempo -->
+            <div class="reserva-info">
+                <h4><i class="fas fa-clock"></i> Información de Tiempo</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <span class="info-label">Fecha de creación:</span>
+                            {{ reserva.fecha_creacion|date:"d/m/Y H:i" }}
+                        </div>
+                        {% if reserva.fecha_confirmacion %}
+                        <div class="info-item">
+                            <span class="info-label">Fecha de confirmación:</span>
+                            {{ reserva.fecha_confirmacion|date:"d/m/Y H:i" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if reserva.fecha_llegada %}
+                        <div class="info-item">
+                            <span class="info-label">Fecha de llegada:</span>
+                            {{ reserva.fecha_llegada|date:"d/m/Y H:i" }}
+                        </div>
+                        {% endif %}
+                        {% if reserva.fecha_salida %}
+                        <div class="info-item">
+                            <span class="info-label">Fecha de salida:</span>
+                            {{ reserva.fecha_salida|date:"d/m/Y H:i" }}
+                        </div>
+                        {% endif %}
+                        {% if reserva.fecha_cancelacion %}
+                        <div class="info-item">
+                            <span class="info-label">Fecha de cancelación:</span>
+                            {{ reserva.fecha_cancelacion|date:"d/m/Y H:i" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Tiempo restante para reservas futuras -->
+                {% if reserva.estado == 'pendiente' or reserva.estado == 'confirmada' %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        {% with tiempo=reserva.tiempo_para_reserva %}
+                            {% if tiempo.total_seconds > 0 %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    <strong>Tiempo restante:</strong>
+                                    {% if tiempo.days > 0 %}
+                                        {{ tiempo.days }} día{{ tiempo.days|pluralize }}, 
+                                        {{ tiempo.seconds|floatformat:0|div:3600|floatformat:0 }} hora{{ tiempo.seconds|floatformat:0|div:3600|floatformat:0|pluralize }}
+                                    {% else %}
+                                        {% with horas=tiempo.seconds|floatformat:0|div:3600 %}
+                                            {% if horas > 0 %}
+                                                {{ horas }} hora{{ horas|pluralize }}, 
+                                                {% with minutos=tiempo.seconds|floatformat:0|div:60|add:"-3600"|floatformat:0 %}
+                                                    {{ minutos }} minuto{{ minutos|pluralize }}
+                                                {% endwith %}
+                                            {% else %}
+                                                {% with minutos=tiempo.seconds|floatformat:0|div:60 %}
+                                                    {{ minutos }} minuto{{ minutos|pluralize }}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Esta reserva ya ha vencido.</strong>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Historial de cambios -->
+            {% if historial %}
+            <div class="reserva-info">
+                <h4><i class="fas fa-history"></i> Historial de Cambios</h4>
+                {% for cambio in historial %}
+                <div class="historial-item">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>{{ cambio.fecha_cambio|date:"d/m/Y H:i" }}</strong>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="badge bg-secondary">{{ cambio.get_estado_anterior_display }}</span>
+                            <i class="fas fa-arrow-right mx-2"></i>
+                            <span class="badge bg-primary">{{ cambio.get_estado_nuevo_display }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            {% if cambio.usuario_responsable %}
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> {{ cambio.usuario_responsable.get_full_name|default:cambio.usuario_responsable.username }}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if cambio.comentario %}
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <small class="text-muted">{{ cambio.comentario }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Acciones -->
+            <div class="acciones-container">
+                <h4><i class="fas fa-tools"></i> Acciones</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="{% url 'reservas:mis_reservas' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a Mis Reservas
+                        </a>
+                        <a href="{% url 'reservas:disponibilidad' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Nueva Reserva
+                        </a>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        {% if puede_cancelar %}
+                        <button class="btn btn-danger" onclick="cancelarReserva()">
+                            <i class="fas fa-times"></i> Cancelar Reserva
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para cancelar -->
+<div class="modal fade" id="cancelarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Reserva</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres cancelar esta reserva?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener</button>
+                <form method="post" action="{% url 'reservas:cancelar_reserva' reserva.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sí, cancelar reserva</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cancelarReserva() {
+    const modal = new bootstrap.Modal(document.getElementById('cancelarModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block title %}Solicitar Evento - Restaurante GYZ{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Solicitar Evento
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Información:</strong> Completa el formulario para solicitar tu evento. 
+                        Te contactaremos pronto con una cotización personalizada.
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Información básica -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre_evento.id_for_label }}" class="form-label">
+                                    <i class="fas fa-tag me-1"></i>Nombre del Evento *
+                                </label>
+                                {{ form.nombre_evento }}
+                                {% if form.nombre_evento.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.nombre_evento.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label">
+                                    <i class="fas fa-list me-1"></i>Categoría *
+                                </label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.categoria.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Descripción del Evento *
+                            </label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.descripcion.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Fechas y horarios -->
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.fecha_evento.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar me-1"></i>Fecha del Evento *
+                                </label>
+                                {{ form.fecha_evento }}
+                                {% if form.fecha_evento.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.fecha_evento.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.hora_inicio.id_for_label }}" class="form-label">
+                                    <i class="fas fa-clock me-1"></i>Hora de Inicio *
+                                </label>
+                                {{ form.hora_inicio }}
+                                {% if form.hora_inicio.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.hora_inicio.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.hora_fin.id_for_label }}" class="form-label">
+                                    <i class="fas fa-clock me-1"></i>Hora de Fin *
+                                </label>
+                                {{ form.hora_fin }}
+                                {% if form.hora_fin.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.hora_fin.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.tipo_ubicacion.id_for_label }}" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>Tipo de Ubicación *
+                                </label>
+                                {{ form.tipo_ubicacion }}
+                                {% if form.tipo_ubicacion.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.tipo_ubicacion.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_invitados.id_for_label }}" class="form-label">
+                                    <i class="fas fa-users me-1"></i>Número de Invitados *
+                                </label>
+                                {{ form.numero_invitados }}
+                                {% if form.numero_invitados.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.numero_invitados.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.direccion_evento.id_for_label }}" class="form-label">
+                                <i class="fas fa-map me-1"></i>Dirección del Evento
+                            </label>
+                            {{ form.direccion_evento }}
+                            {% if form.direccion_evento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.direccion_evento.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.instrucciones_ubicacion.id_for_label }}" class="form-label">
+                                <i class="fas fa-info-circle me-1"></i>Instrucciones de Ubicación
+                            </label>
+                            {{ form.instrucciones_ubicacion }}
+                            {% if form.instrucciones_ubicacion.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.instrucciones_ubicacion.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="mb-3">
+                            <label for="{{ form.notas_especiales.id_for_label }}" class="form-label">
+                                <i class="fas fa-sticky-note me-1"></i>Notas Especiales
+                            </label>
+                            {{ form.notas_especiales }}
+                            {% if form.notas_especiales.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.notas_especiales.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.alergias_especiales.id_for_label }}" class="form-label">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Alergias Especiales
+                                </label>
+                                {{ form.alergias_especiales }}
+                                {% if form.alergias_especiales.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.alergias_especiales.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.preferencias_dieteticas.id_for_label }}" class="form-label">
+                                    <i class="fas fa-leaf me-1"></i>Preferencias Dietéticas
+                                </label>
+                                {{ form.preferencias_dieteticas }}
+                                {% if form.preferencias_dieteticas.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.preferencias_dieteticas.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'eventos:mis_eventos' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Enviar Solicitud
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-phone fa-2x text-info mb-2"></i>
+                    <h5>Contacto Directo</h5>
+                    <p class="mb-0">Llámanos para consultas urgentes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                    <h5>Respuesta Rápida</h5>
+                    <p class="mb-0">Te responderemos en 24 horas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-gift fa-2x text-warning mb-2"></i>
+                    <h5>Personalización</h5>
+                    <p class="mb-0">Cada evento es único</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación del formulario
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Establecer fecha mínima como hoy
+document.addEventListener('DOMContentLoaded', function() {
+    var fechaInput = document.getElementById('{{ form.fecha_evento.id_for_label }}');
+    if (fechaInput) {
+        var today = new Date().toISOString().split('T')[0];
+        fechaInput.setAttribute('min', today);
+    }
+});
+</script>
+{% endblock %}

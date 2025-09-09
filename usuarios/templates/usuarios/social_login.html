@@ -1,0 +1,189 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Iniciar Sesión con Google - Restaurante GYZ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .social-login-container {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 0;
+    }
+    
+    .social-login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    .social-login-header {
+        margin-bottom: 2rem;
+    }
+    
+    .social-login-header h1 {
+        color: #333;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .social-login-header p {
+        color: #666;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    
+    .google-btn {
+        background: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .google-btn:hover {
+        background: #3367d6;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .google-icon {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+        color: #4285f4;
+    }
+    
+    .divider {
+        margin: 2rem 0;
+        display: flex;
+        align-items: center;
+        color: #999;
+    }
+    
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #ddd;
+    }
+    
+    .divider span {
+        padding: 0 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .alternative-links {
+        margin-top: 2rem;
+    }
+    
+    .alternative-links a {
+        color: #4285f4;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .alternative-links a:hover {
+        color: #3367d6;
+        text-decoration: underline;
+    }
+    
+    .benefits {
+        margin-top: 2rem;
+        text-align: left;
+    }
+    
+    .benefits h3 {
+        color: #333;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .benefits li {
+        color: #666;
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .benefits li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #4CAF50;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="social-login-container">
+    <div class="social-login-card">
+        <div class="social-login-header">
+            <h1>Iniciar Sesión</h1>
+            <p>Accede a tu cuenta de Restaurante GYZ</p>
+        </div>
+        
+        <a href="{% provider_login_url 'google' %}" class="google-btn">
+            <div class="google-icon">G</div>
+            Continuar con Google
+        </a>
+        
+        <div class="divider">
+            <span>o</span>
+        </div>
+        
+        <div class="alternative-links">
+            <p>¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a></p>
+            <p>¿Ya tienes cuenta? <a href="{% url 'usuarios:login' %}">Inicia sesión con email</a></p>
+        </div>
+        
+        <div class="benefits">
+            <h3>¿Por qué usar Google?</h3>
+            <ul>
+                <li>Acceso rápido y seguro</li>
+                <li>No necesitas recordar otra contraseña</li>
+                <li>Tu información está protegida</li>
+                <li>Puedes cancelar el acceso en cualquier momento</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
