@@ -34,7 +34,7 @@ class OpcionPersonalizacionInline(admin.TabularInline):
 class PlatoMenuAdmin(admin.ModelAdmin):
     list_display = [
         'nombre', 'categoria', 'precio_display', 'disponible', 
-        'es_vegetariano', 'destacado', 'imagen_preview'
+        'es_vegetariano', 'destacado', 'imagen_preview', 'thumbnail_preview'
     ]
     list_filter = [
         'categoria', 'disponible', 'es_vegetariano', 'es_vegano', 
@@ -89,11 +89,20 @@ class PlatoMenuAdmin(admin.ModelAdmin):
     def imagen_preview(self, obj):
         if obj.imagen:
             return format_html(
-                '<img src="{}" width="50" height="50" style="object-fit: cover;">',
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">',
                 obj.imagen.url
             )
-        return "Sin imagen"
-    imagen_preview.short_description = 'Imagen'
+        return format_html('<span style="color: #999; font-style: italic;">Sin imagen</span>')
+    imagen_preview.short_description = 'Vista Previa'
+    
+    def thumbnail_preview(self, obj):
+        if obj.imagen_thumbnail:
+            return format_html(
+                '<img src="{}" width="30" height="30" style="object-fit: cover; border-radius: 3px;">',
+                obj.imagen_thumbnail.url
+            )
+        return format_html('<span style="color: #999; font-size: 11px;">Sin thumbnail</span>')
+    thumbnail_preview.short_description = 'Thumbnail'
 
 class PlatoMenuDelDiaInline(admin.TabularInline):
     model = PlatoMenuDelDia

@@ -11,13 +11,134 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-
+        /* Header/Navbar Mejorado */
+        .navbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-      
         
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
+            animation: navbarShine 3s ease-in-out infinite;
+        }
+        
+        @keyframes navbarShine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #ffc107, #28a745, #ffc107);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+        
+        .navbar-brand i {
+            background: linear-gradient(45deg, #ffc107, #28a745);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(255, 193, 7, 0.3));
+        }
+        
+        .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            padding: 0.75rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-link:hover {
+            color: #ffc107 !important;
+            background: rgba(255, 193, 7, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.2);
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link i {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover i {
+            transform: scale(1.1);
+            color: #ffc107;
+        }
+        
+        /* Estilos del dropdown general comentados para evitar conflictos
+        .dropdown-menu {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dropdown-item {
+            color: #ffffff;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 2px 8px;
+        }
+        
+        .dropdown-item:hover {
+            background: linear-gradient(45deg, rgba(255, 193, 7, 0.2), rgba(40, 167, 69, 0.2));
+            color: #ffc107;
+            transform: translateX(5px);
+        }
+        */
+        
+        .navbar-toggler {
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+        
+        /* Estilos generales mejorados */
         .hero-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -31,15 +152,35 @@
         }
         
         .btn-primary {
-            background: rgb(114, 147, 196);
+            background: linear-gradient(45deg, #ffc107, #28a745);
             border: none;
-            border-radius: 10rem;
+            border-radius: 25px;
             padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            background: linear-gradient(45deg, #28a745, #ffc107);
             transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(255, 193, 7, 0.3);
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
         }
         
         .form-control {
@@ -49,8 +190,8 @@
         }
         
         .form-control:focus {
-            border-color: #b44e4e;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
         }
         
         .alert {
@@ -58,115 +199,764 @@
             border: none;
         }
         
+        /* Footer Mejorado */
         .footer {
-            background-color: #000000;
-            color: rgb(255, 255, 255);
-            padding: 2rem 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            color: #ffffff;
+            padding: 4rem 0 2rem;
             margin-top: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #ffc107, #28a745, #ffc107);
+        }
+        
+        .footer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 193, 7, 0.03) 0%, transparent 70%);
+            animation: footerRotate 20s linear infinite;
+            z-index: 1;
+        }
+        
+        @keyframes footerRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .footer h5 {
+            color: #ffc107;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: linear-gradient(90deg, #ffc107, #28a745);
+            border-radius: 1px;
+        }
+        
+        .footer p {
+            color: #cccccc;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-social {
+            margin-top: 1.5rem;
+        }
+        
+        .footer-social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, rgba(255, 193, 7, 0.2), rgba(40, 167, 69, 0.2));
+            color: #ffc107;
+            text-decoration: none;
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .footer-social a:hover {
+            background: linear-gradient(45deg, #ffc107, #28a745);
+            color: #1a1a1a;
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 8px 15px rgba(255, 193, 7, 0.3);
+        }
+        
+        .footer hr {
+            border-color: rgba(255, 193, 7, 0.3);
+            margin: 2rem 0 1.5rem;
+        }
+        
+        .footer-bottom {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 193, 7, 0.2);
+        }
+        
+        .footer-bottom p {
+            margin: 0;
+            color: #999999;
+            font-size: 0.9rem;
+        }
+        
+        /* Footer Links */
+        .footer ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer ul li a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            display: block;
+        }
+        
+        .footer ul li a:hover {
+            color: #ffc107;
+            padding-left: 10px;
+        }
+        
+        .footer ul li a i {
+            width: 16px;
+            opacity: 0.7;
+            margin-right: 8px;
+        }
+        
+        /* Footer Schedule */
+        .footer .d-flex {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer .d-flex:last-child {
+            border-bottom: none;
+        }
+        
+        /* Efectos de hover para iconos del footer */
+        .footer i {
+            transition: all 0.3s ease;
+        }
+        
+        .footer .col-lg-4:hover i,
+        .footer .col-lg-3:hover i,
+        .footer .col-lg-2:hover i,
+        .footer .col-md-6:hover i {
+            color: #ffc107;
+            transform: scale(1.1);
+        }
+        
+        /* Responsive mejoras */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            
+            .footer {
+                padding: 3rem 0 1.5rem;
+            }
+            
+            .footer h5 {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Estilos del Dropdown del Perfil */
+        .navbar .dropdown-menu {
+            z-index: 99999 !important;
+            background-color: #ffffff !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+            border-radius: 0.375rem !important;
+            min-width: 200px !important;
+            margin-top: 0.125rem !important;
+            position: absolute !important;
+            top: 100% !important;
+            left: auto !important;
+            right: 0 !important;
+            display: none !important;
+        }
+        
+        .navbar .dropdown.show .dropdown-menu {
+            display: block !important;
+        }
+        
+        .navbar .dropdown-item {
+            color: #333 !important;
+            padding: 8px 16px;
+        }
+        
+        .navbar .dropdown-item:hover {
+            background-color: #f8f9fa !important;
+            color: #007bff !important;
+        }
+        
+        .navbar .dropdown {
+            position: relative !important;
+        }
+        
+        .navbar .dropdown-toggle {
+            position: relative !important;
+            z-index: 99998 !important;
+        }
+        
+        .navbar .dropdown-menu .dropdown-item {
+            color: #212529 !important;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.15s ease-in-out !important;
+        }
+        
+        .navbar .dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa !important;
+            color: #16181b !important;
+        }
+        
+        .navbar .dropdown-menu .dropdown-item:focus {
+            background-color: #e9ecef !important;
+            color: #16181b !important;
+        }
+        
+        .navbar .dropdown-menu .dropdown-divider {
+            border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* Navbar Profesional */
+        .navbar-professional {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 193, 7, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            padding: 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand-pro {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand-pro i {
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #ffc107, #28a745);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .navbar-brand-pro:hover {
+            color: #ffc107;
+            transform: scale(1.05);
+        }
+        
+        /* Botón Hamburguesa */
+        .hamburger-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 10001;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-line {
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(45deg, #ffc107, #28a745);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        /* Menú Desplegable */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 350px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            backdrop-filter: blur(20px);
+            border-left: 2px solid rgba(255, 193, 7, 0.3);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10000;
+            overflow-y: auto;
+        }
+        
+        .mobile-menu.active {
+            right: 0;
+        }
+        
+        .mobile-menu-content {
+            padding: 6rem 2rem 2rem;
+        }
+        
+        .menu-section {
+            margin-bottom: 2rem;
+        }
+        
+        .menu-title {
+            color: #ffc107;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .menu-item:hover {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            transform: translateX(5px);
+        }
+        
+        .menu-item:hover::before {
+            left: 100%;
+        }
+        
+        .menu-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .menu-item.logout {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .menu-item.logout:hover {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+        
+        .menu-item.register {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .menu-item.register:hover {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            color: #ffc107;
+            font-weight: 500;
+        }
+        
+        .user-info i {
+            font-size: 1.5rem;
+        }
+        
+        .menu-badge {
+            background: #dc3545;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+        
+        .menu-divider {
+            height: 1px;
+            background: rgba(255, 193, 7, 0.2);
+            margin: 1.5rem 0;
+        }
+        
+        /* Overlay */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }
+        
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .mobile-menu {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .mobile-menu-content {
+                padding: 5rem 1.5rem 2rem;
+            }
+        }
+        
+        /* Ajuste del contenido principal */
+        body {
+            padding-top: 80px;
+        }
+        
+        /* Contenedor de Botones Flotantes */
+        .floating-buttons {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        /* Estilos del Carrito Flotante */
+        .cart-float {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.25);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+        
+        .cart-float:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.35);
+            background: linear-gradient(135deg, #fd7e14, #dc3545);
+            color: white;
+            text-decoration: none;
+            opacity: 1;
+        }
+        
+        .cart-float:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+        }
+        
+        /* Contador del Carrito */
+        .cart-counter {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        .cart-counter.hidden {
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos del Chatbot Flotante */
+        .chatbot-float {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        
+        .chatbot-float:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+            opacity: 1;
+        }
+        
+        .chatbot-float:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Responsive para botones flotantes */
+        @media (max-width: 768px) {
+            .floating-buttons {
+                bottom: 20px;
+                right: 20px;
+                gap: 12px;
+            }
+            
+            .cart-float,
+            .chatbot-float {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+            
+            .cart-counter {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+                top: -4px;
+                right: -4px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .chatbot-float {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chatbot-float {
+                width: 42px;
+                height: 42px;
+                font-size: 15px;
+                bottom: 15px;
+                right: 15px;
+            }
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navbar Profesional con Menú Hamburguesa -->
+    <nav class="navbar-professional">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'usuarios:index' %}">
-                <i class="fas fa-utensils me-2"></i>Restaurante GYZ
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'usuarios:index' %}">
-                            <i class="fas fa-home me-1"></i>Inicio
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'menu:menu_completo' %}">
-                            <i class="fas fa-list me-1"></i>Menú
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'pedidos:ver_carrito' %}">
-                            <i class="fas fa-shopping-cart me-1"></i>Carrito
-                            <span id="carrito-contador" class="badge bg-danger position-absolute" style="top: 0; right: 0; display: none; font-size: 0.7em;">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'reservas:disponibilidad' %}">
-                            <i class="fas fa-calendar-alt me-1"></i>Reservas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'eventos:mis_eventos' %}">
-                            <i class="fas fa-calendar-plus me-1"></i>Eventos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contacto">
-                            <i class="fas fa-phone me-1"></i>Contacto
-                        </a>
-                    </li>
-                </ul>
+            <div class="navbar-content">
+                <!-- Logo -->
+                <a class="navbar-brand-pro" href="{% url 'usuarios:index' %}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Restaurante GYZ</span>
+                </a>
                 
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i>{{ user.first_name|default:user.username }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
-                                    <i class="fas fa-user-edit me-2"></i>Mi Perfil
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'pedidos:mis_pedidos' %}">
-                                    <i class="fas fa-receipt me-2"></i>Mis Pedidos
-                                </a></li>
-                                                        <li><a class="dropdown-item" href="{% url 'reservas:mis_reservas' %}">
-                            <i class="fas fa-calendar-check me-2"></i>Mis Reservas
-                        </a></li>
-                                <li><a class="dropdown-item" href="{% url 'eventos:mis_eventos' %}">
-                            <i class="fas fa-calendar-plus me-2"></i>Mis Eventos
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        {% if user.is_staff %}
-                        <li><a class="dropdown-item" href="{% url 'inventario:dashboard' %}">
-                            <i class="fas fa-warehouse me-2"></i>Inventario
-                        </a></li>
-                        <li><a class="dropdown-item" href="{% url 'empleados:dashboard' %}">
-                            <i class="fas fa-users me-2"></i>Empleados
-                        </a></li>
-                        <li><a class="dropdown-item" href="{% url 'eventos:dashboard_eventos' %}">
-                            <i class="fas fa-chart-line me-2"></i>Dashboard Eventos
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        {% endif %}
-                                <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-                                </a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'usuarios:login' %}">
-                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-primary text-white ms-2" href="{% url 'usuarios:registro' %}">
-                                <i class="fas fa-user-plus me-1"></i>Registrarse
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
+                <!-- Contador principal del carrito (oculto, solo para sincronización) -->
+                <span id="carrito-contador" style="display: none;">{{ carrito_cantidad|default:0 }}</span>
+                
+                <!-- Botón Hamburguesa -->
+                <button class="hamburger-menu" id="hamburgerBtn">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
             </div>
         </div>
+        
+        <!-- Menú Desplegable -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-content">
+                <!-- Navegación Principal -->
+                <div class="menu-section">
+                    <h6 class="menu-title">Navegación</h6>
+                    <a href="{% url 'usuarios:index' %}" class="menu-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="{% url 'menu:menu_completo' %}" class="menu-item">
+                        <i class="fas fa-list"></i>
+                        <span>Menú</span>
+                    </a>
+                    <a href="{% url 'pedidos:ver_carrito' %}" class="menu-item">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Carrito</span>
+                        <span id="carrito-contador-mobile" class="menu-badge">0</span>
+                    </a>
+                    <a href="{% url 'reservas:disponibilidad' %}" class="menu-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Reservas</span>
+                    </a>
+                    <a href="{% url 'eventos:mis_eventos' %}" class="menu-item">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Eventos</span>
+                    </a>
+                    <a href="#contacto" class="menu-item">
+                        <i class="fas fa-phone"></i>
+                        <span>Contacto</span>
+                    </a>
+                </div>
+                
+                <!-- Sección de Usuario -->
+                {% if user.is_authenticated %}
+                <div class="menu-section">
+                    <h6 class="menu-title">Mi Cuenta</h6>
+                    <div class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ user.first_name|default:user.username }}</span>
+                    </div>
+                    <a href="{% url 'usuarios:perfil' %}" class="menu-item">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                    <a href="{% url 'pedidos:mis_pedidos' %}" class="menu-item">
+                        <i class="fas fa-receipt"></i>
+                        <span>Mis Pedidos</span>
+                    </a>
+                    <a href="{% url 'reservas:mis_reservas' %}" class="menu-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Mis Reservas</span>
+                    </a>
+                    <a href="{% url 'eventos:mis_eventos' %}" class="menu-item">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Mis Eventos</span>
+                    </a>
+                    
+                    {% if user.is_staff %}
+                    <div class="menu-divider"></div>
+                    <h6 class="menu-title">Administración</h6>
+                    <a href="{% url 'inventario:dashboard' %}" class="menu-item">
+                        <i class="fas fa-warehouse"></i>
+                        <span>Inventario</span>
+                    </a>
+                    <a href="{% url 'empleados:dashboard' %}" class="menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>Empleados</span>
+                    </a>
+                    <a href="{% url 'eventos:dashboard_eventos' %}" class="menu-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard Eventos</span>
+                    </a>
+                    {% endif %}
+                    
+                    <div class="menu-divider"></div>
+                    <a href="{% url 'usuarios:logout' %}" class="menu-item logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </div>
+                {% else %}
+                <div class="menu-section">
+                    <h6 class="menu-title">Cuenta</h6>
+                    <a href="{% url 'usuarios:login' %}" class="menu-item">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Iniciar Sesión</span>
+                    </a>
+                    <a href="{% url 'usuarios:registro' %}" class="menu-item register">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Registrarse</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Overlay -->
+        <div class="menu-overlay" id="menuOverlay"></div>
     </nav>
 
     <!-- Mensajes -->
@@ -190,33 +980,171 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
                     <h5><i class="fas fa-utensils me-2"></i>Restaurante GYZ</h5>
-                    <p>La mejor experiencia gastronómica de la ciudad.</p>
+                    <p>La mejor experiencia gastronómica de la ciudad. Ofrecemos platos únicos preparados con ingredientes frescos y técnicas culinarias tradicionales.</p>
+                    <div class="footer-social">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h5>Horarios</h5>
-                    <p>Lunes a Domingo<br>12:00 PM - 10:00 PM</p>
+                <div class="col-lg-2 col-md-6">
+                    <h5>Enlaces Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'usuarios:index' %}" class="text-decoration-none"><i class="fas fa-home me-2"></i>Inicio</a></li>
+                        <li><a href="{% url 'menu:menu_completo' %}" class="text-decoration-none"><i class="fas fa-list me-2"></i>Menú</a></li>
+                        <li><a href="{% url 'reservas:disponibilidad' %}" class="text-decoration-none"><i class="fas fa-calendar-alt me-2"></i>Reservas</a></li>
+                        <li><a href="{% url 'eventos:mis_eventos' %}" class="text-decoration-none"><i class="fas fa-calendar-plus me-2"></i>Eventos</a></li>
+                    </ul>
                 </div>
-                <div class="col-md-4">
-                    <h5>Contacto</h5>
-                    <p>
-                        <i class="fas fa-phone me-2"></i>(123) 456-7890<br>
-                        <i class="fas fa-envelope me-2"></i>info@restaurantegyz.com
+                <div class="col-lg-3 col-md-6">
+                    <h5><i class="fas fa-clock me-2"></i>Horarios</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Lunes - Jueves:</span>
+                        <span class="text-warning">12:00 PM - 10:00 PM</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Viernes - Sábado:</span>
+                        <span class="text-warning">12:00 PM - 11:00 PM</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Domingo:</span>
+                        <span class="text-warning">12:00 PM - 9:00 PM</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Contacto</h5>
+                    <p class="mb-2">
+                        <i class="fas fa-phone me-2 text-warning"></i>(123) 456-7890
+                    </p>
+                    <p class="mb-2">
+                        <i class="fas fa-envelope me-2 text-warning"></i>info@restaurantegyz.com
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-map-marker-alt me-2 text-warning"></i>Calle Principal 123, Ciudad
                     </p>
                 </div>
             </div>
             <hr>
-            <div class="text-center">
-                <p>&copy; 2024 Restaurante GYZ. Todos los derechos reservados.</p>
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p>&copy; 2024 Restaurante GYZ. Todos los derechos reservados.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p>Diseñado con <i class="fas fa-heart text-danger"></i> para una experiencia única</p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
 
+    <!-- Botones flotantes -->
+    <div class="floating-buttons">
+        <!-- Botón flotante del carrito -->
+        <a href="{% url 'pedidos:ver_carrito' %}" class="cart-float" title="Ver Carrito">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-float-counter" class="cart-counter">0</span>
+        </a>
+        
+        <!-- Botón flotante del chatbot -->
+        <button class="chatbot-float" data-bs-toggle="modal" data-bs-target="#chatModal" title="Chat con nosotros">
+            <i class="fas fa-comments"></i>
+        </button>
+    </div>
+    
+    <!-- Incluir modal del chatbot -->
+    {% include 'chatbot/chat_modal.html' %}
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- JavaScript del Menú Hamburguesa -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuOverlay = document.getElementById('menuOverlay');
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            // Toggle del menú
+            function toggleMenu() {
+                hamburgerBtn.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+            }
+            
+            // Event listeners
+            hamburgerBtn.addEventListener('click', toggleMenu);
+            menuOverlay.addEventListener('click', toggleMenu);
+            
+            // Cerrar menú al hacer click en un item
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (!item.getAttribute('href').startsWith('#')) {
+                        toggleMenu();
+                    }
+                });
+            });
+            
+            // Cerrar menú con tecla Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                    toggleMenu();
+                }
+            });
+            
+            // Sincronizar contadores del carrito
+            function syncCarritoCounters() {
+                const mainCounter = document.getElementById('carrito-contador');
+                const mobileCounter = document.getElementById('carrito-contador-mobile');
+                const floatCounter = document.getElementById('cart-float-counter');
+                
+                if (mainCounter) {
+                    const count = mainCounter.textContent || '0';
+                    
+                    // Sincronizar contador móvil
+                    if (mobileCounter) {
+                        mobileCounter.textContent = count;
+                        
+                        if (count === '0' || count === '') {
+                            mobileCounter.style.display = 'none';
+                        } else {
+                            mobileCounter.style.display = 'inline-block';
+                        }
+                    }
+                    
+                    // Sincronizar contador flotante
+                    if (floatCounter) {
+                        floatCounter.textContent = count;
+                        
+                        if (count === '0' || count === '') {
+                            floatCounter.classList.add('hidden');
+                        } else {
+                            floatCounter.classList.remove('hidden');
+                        }
+                    }
+                }
+            }
+            
+            // Observar cambios en el contador principal
+            const mainCounter = document.getElementById('carrito-contador');
+            if (mainCounter) {
+                const observer = new MutationObserver(syncCarritoCounters);
+                observer.observe(mainCounter, { childList: true, subtree: true });
+                syncCarritoCounters(); // Sincronizar al cargar
+            }
+            
+            // Inicializar contador flotante al cargar la página
+            syncCarritoCounters();
+        });
+    </script>
+    
     {% block extra_js %}{% endblock %}
+    
 </body>
-</html> 
+</html>

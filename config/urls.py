@@ -13,6 +13,7 @@ urlpatterns = [
     path('inventario/', include('inventario.urls')),  # URLs del sistema de inventario
     path('empleados/', include('empleados.urls')),  # URLs del sistema de empleados
     path('eventos/', include('eventos.urls')),  # URLs del sistema de eventos y catering
+    path('chatbot/', include('chatbot.urls')),  # URLs del sistema de chatbot
     
     # URLs de django-allauth
     path('accounts/', include('allauth.urls')),

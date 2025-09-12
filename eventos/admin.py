@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import (
     TipoEvento, ServicioAdicional, MenuEvento, Evento, 
     Catering, CotizacionEvento, PresupuestoEvento
@@ -6,10 +7,31 @@ from .models import (
 
 @admin.register(TipoEvento)
 class TipoEventoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'precio_base', 'capacidad_minima', 'capacidad_maxima', 'duracion_estimada', 'activo']
+    list_display = ['nombre', 'precio_base', 'capacidad_minima', 'capacidad_maxima', 'duracion_estimada', 'imagen_preview', 'activo']
     list_filter = ['activo', 'capacidad_minima', 'capacidad_maxima']
     search_fields = ['nombre', 'descripcion']
     list_editable = ['activo', 'precio_base']
+    
+    fieldsets = (
+        ('Información Básica', {
+            'fields': ('nombre', 'descripcion', 'imagen')
+        }),
+        ('Configuración', {
+            'fields': ('precio_base', 'capacidad_minima', 'capacidad_maxima', 'duracion_estimada')
+        }),
+        ('Estado', {
+            'fields': ('activo',)
+        })
+    )
+    
+    def imagen_preview(self, obj):
+        if obj.imagen:
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;">',
+                obj.imagen.url
+            )
+        return "Sin imagen"
+    imagen_preview.short_description = 'Vista Previa'
 
 @admin.register(ServicioAdicional)
 class ServicioAdicionalAdmin(admin.ModelAdmin):
@@ -20,10 +42,34 @@ class ServicioAdicionalAdmin(admin.ModelAdmin):
 
 @admin.register(MenuEvento)
 class MenuEventoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'precio_por_persona', 'bebidas_incluidas', 'postre_incluido', 'activo']
+    list_display = ['nombre', 'precio_por_persona', 'bebidas_incluidas', 'postre_incluido', 'imagen_preview', 'activo']
     list_filter = ['activo', 'bebidas_incluidas', 'postre_incluido']
     search_fields = ['nombre', 'descripcion', 'platos']
     list_editable = ['activo', 'precio_por_persona']
+    
+    fieldsets = (
+        ('Información del Menú', {
+            'fields': ('nombre', 'descripcion', 'imagen')
+        }),
+        ('Detalles', {
+            'fields': ('platos', 'precio_por_persona')
+        }),
+        ('Incluye', {
+            'fields': ('bebidas_incluidas', 'postre_incluido')
+        }),
+        ('Estado', {
+            'fields': ('activo',)
+        })
+    )
+    
+    def imagen_preview(self, obj):
+        if obj.imagen:
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;">',
+                obj.imagen.url
+            )
+        return "Sin imagen"
+    imagen_preview.short_description = 'Vista Previa'
 
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):

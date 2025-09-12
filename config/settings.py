@@ -14,7 +14,15 @@ SECRET_KEY = config('SECRET_KEY', default='tu-clave-secreta-aqui')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ["localhost", "*"]
+ALLOWED_HOSTS = ["localhost", "*" , "https://*.ngrok-free.app"]
+
+
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
 
 # Application definition
 INSTALLED_APPS = [
@@ -34,6 +42,7 @@ INSTALLED_APPS = [
     'inventario', # Sistema de inventario
     'empleados', # Sistema de empleados
     'eventos',   # Sistema de eventos y catering
+    'chatbot',   # Sistema de chatbot de atención al cliente
     
     # django-allauth
     'allauth',
@@ -104,7 +113,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]

@@ -1,7 +1,9 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from PIL import Image
+from decimal import Decimal
+from config.media_settings import validate_plato_image
 import os
 
 class CategoriaMenu(models.Model):
@@ -66,8 +68,19 @@ class PlatoMenu(models.Model):
     )
     
     # Imágenes
-    imagen = models.ImageField(upload_to='platos/', blank=True, null=True)
-    imagen_thumbnail = models.ImageField(upload_to='platos/thumbnails/', blank=True, null=True)
+    imagen = models.ImageField(
+        upload_to='platos/', 
+        blank=True, 
+        null=True,
+        validators=[validate_plato_image],
+        help_text="Imagen principal del plato (máx. 5MB, formatos: JPG, PNG, GIF, WebP)"
+    )
+    imagen_thumbnail = models.ImageField(
+        upload_to='platos/thumbnails/', 
+        blank=True, 
+        null=True,
+        help_text="Imagen en miniatura del plato (se genera automáticamente)"
+    )
     
     # Características del plato
     ingredientes = models.ManyToManyField(Ingrediente, blank=True, related_name='platos')

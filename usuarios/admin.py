@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.utils.html import format_html
 from .models import Usuario, PerfilUsuario
 
 @admin.register(Usuario)
@@ -45,7 +46,7 @@ class UsuarioAdmin(UserAdmin):
 class PerfilUsuarioAdmin(admin.ModelAdmin):
     """Configuración del admin para el modelo PerfilUsuario"""
     
-    list_display = ('usuario', 'sitio_web')
+    list_display = ('usuario', 'avatar_preview', 'sitio_web')
     search_fields = ('usuario__username', 'usuario__email', 'biografia')
     
     fieldsets = (
@@ -56,3 +57,12 @@ class PerfilUsuarioAdmin(admin.ModelAdmin):
             'fields': ('avatar', 'biografia', 'sitio_web')
         }),
     )
+    
+    def avatar_preview(self, obj):
+        if obj.avatar:
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 50%;">',
+                obj.avatar.url
+            )
+        return "Sin avatar"
+    avatar_preview.short_description = 'Avatar'

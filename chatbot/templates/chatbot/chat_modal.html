@@ -1,0 +1,271 @@
+<!-- Modal del Chatbot -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="position: fixed; bottom: 90px; right: 25px; margin: 0; max-width: 350px; width: 350px;">
+        <div class="modal-content" style="border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative;">
+            <!-- Flecha apuntando hacia abajo -->
+            <div style="position: absolute; bottom: -10px; right: 25px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid #28a745;"></div>
+            
+            <div class="modal-header" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title" id="chatModalLabel" style="font-size: 16px;">
+                    <i class="fas fa-robot me-2"></i>Asistente Virtual - Restaurante GYZ
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto; padding: 15px;">
+                <!-- Área de mensajes -->
+                <div id="chatMessages" style="min-height: 250px; max-height: 320px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 10px; padding: 12px; margin-bottom: 12px; background-color: #f8f9fa;">
+                    <div class="message bot-message" style="margin-bottom: 8px;">
+                        <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 8px 12px; border-radius: 15px 15px 15px 5px; display: inline-block; max-width: 85%; font-size: 14px;">
+                            <i class="fas fa-robot me-1"></i>¡Hola! Soy el asistente virtual de Restaurante GYZ. ¿En qué puedo ayudarte hoy?
+                        </div>
+                        <small class="text-muted d-block mt-1" style="font-size: 11px;">Ahora</small>
+                    </div>
+                </div>
+                
+                <!-- Preguntas Frecuentes -->
+                <div class="mb-2">
+                    <h6 style="color: #495057; margin-bottom: 8px; font-weight: 600; font-size: 14px;">
+                        <i class="fas fa-question-circle me-1"></i>Preguntas Frecuentes:
+                    </h6>
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <button class="btn btn-outline-success btn-sm w-100 faq-btn" style="font-size: 12px; padding: 4px 8px;" data-response="Nuestros horarios son: Lunes a Domingo de 12:00 PM a 11:00 PM. ¡Te esperamos!">
+                                <i class="fas fa-clock me-1"></i>Horarios
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-info btn-sm w-100 faq-btn" style="font-size: 12px; padding: 4px 8px;" data-response="Ofrecemos servicio de delivery a domicilio. El tiempo estimado es de 30-45 minutos. ¡Pide ya!">
+                                <i class="fas fa-truck me-1"></i>Delivery
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-warning btn-sm w-100 faq-btn" style="font-size: 12px; padding: 4px 8px;" data-response="Tenemos opciones vegetarianas deliciosas: ensaladas frescas, pasta primavera, pizza vegetariana y más.">
+                                <i class="fas fa-leaf me-1"></i>Vegetariano
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-secondary btn-sm w-100 faq-btn" style="font-size: 12px; padding: 4px 8px;" data-response="Puedes hacer reservas llamando al (123) 456-7890 o a través de nuestra página web.">
+                                <i class="fas fa-calendar me-1"></i>Ubicación
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-outline-primary btn-sm w-100 faq-btn" style="font-size: 12px; padding: 4px 8px;" data-response="Tenemos conexión WiFi gratuita. La contraseña es: RestauranteGYZ2024">
+                                <i class="fas fa-wifi me-1"></i>WiFi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Área de escritura -->
+                <div class="chat-input p-2 border-top">
+                    <div class="input-group" style="margin-top: 8px;">
+                        <input type="text" id="messageInput" class="form-control form-control-sm" 
+                               placeholder="Escribe tu mensaje..." maxlength="500" style="border-radius: 15px 0 0 15px; border: 1px solid #e9ecef; font-size: 13px;">
+                        <button class="btn btn-success btn-sm" type="button" id="sendMessage" style="border-radius: 0 15px 15px 0; background: linear-gradient(135deg, #28a745, #20c997); border: 1px solid #28a745; padding: 4px 12px;">
+                            <i class="fas fa-paper-plane" style="font-size: 12px;"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted mt-1 d-block" style="font-size: 11px;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        También puedes preguntar sobre nuestro menú, reservas o cualquier consulta.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important;
+}
+
+.chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 15px;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.bot-message {
+    justify-content: flex-start;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.bot-message .message-avatar {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+}
+
+.user-message .message-avatar {
+    background: #007bff;
+    color: white;
+    margin-right: 0;
+    margin-left: 10px;
+    order: 2;
+}
+
+.message-content {
+    max-width: 70%;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.user-message .message-content {
+    background: #007bff;
+    color: white;
+}
+
+.quick-question {
+    transition: all 0.2s ease;
+}
+
+.quick-question:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.chat-input {
+    background-color: white;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background: #999;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendMessage');
+    const faqButtons = document.querySelectorAll('.faq-btn');
+    
+    // Función para agregar mensaje al chat
+    function addMessage(message, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+        messageDiv.style.marginBottom = '8px';
+        
+        const messageContent = document.createElement('div');
+        messageContent.style.cssText = `
+            background: ${isUser ? 'linear-gradient(135deg, #17a2b8, #138496)' : 'linear-gradient(135deg, #28a745, #20c997)'};
+            color: white;
+            padding: 8px 12px;
+            border-radius: ${isUser ? '15px 15px 5px 15px' : '15px 15px 15px 5px'};
+            display: inline-block;
+            max-width: 85%;
+            font-size: 14px;
+            ${isUser ? 'margin-left: auto; float: right;' : ''}
+        `;
+        
+        messageContent.innerHTML = `${isUser ? '<i class="fas fa-user me-1"></i>' : '<i class="fas fa-robot me-1"></i>'}${message}`;
+        
+        const timeStamp = document.createElement('small');
+        timeStamp.className = 'text-muted d-block mt-1';
+        timeStamp.style.fontSize = '11px';
+        timeStamp.textContent = 'Ahora';
+        timeStamp.style.textAlign = isUser ? 'right' : 'left';
+        
+        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(timeStamp);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll al final
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Manejar preguntas frecuentes
+    faqButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const response = this.getAttribute('data-response');
+            addMessage(response);
+        });
+    });
+    
+    // Manejar envío de mensajes
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message) {
+            addMessage(message, true);
+            messageInput.value = '';
+            
+            // Simular respuesta del bot después de un breve delay
+            setTimeout(() => {
+                addMessage('Gracias por tu mensaje. Un miembro de nuestro equipo te ayudará pronto.');
+            }, 1000);
+        }
+    }
+    
+    sendButton.addEventListener('click', sendMessage);
+    
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+    
+    // Limpiar chat al cerrar modal
+    const modal = document.getElementById('chatModal');
+    modal.addEventListener('hidden.bs.modal', function() {
+        // Mantener solo el mensaje de bienvenida
+        const welcomeMessage = chatMessages.querySelector('.bot-message');
+        if (welcomeMessage) {
+            chatMessages.innerHTML = '';
+            chatMessages.appendChild(welcomeMessage.cloneNode(true));
+        }
+        messageInput.value = '';
+    });
+});
+</script>

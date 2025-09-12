@@ -88,7 +88,32 @@ def perfil_usuario(request):
 
 def index(request):
     """Vista para la página principal del restaurante"""
-    return render(request, 'usuarios/index.html')
+    from menu.models import PlatoMenu, Resena
+    
+    # Obtener platos destacados para el carrusel
+    platos_destacados = PlatoMenu.objects.filter(
+        disponible=True,
+        destacado=True
+    ).select_related('categoria')[:16]  # Más platos para el carrusel
+    
+    # Obtener reseñas destacadas (con mejor calificación)
+    resenas_destacadas = Resena.objects.filter(
+        calificacion__gte=4
+    ).select_related('cliente', 'plato').order_by('-calificacion', '-fecha_creacion')[:3]
+    
+    # Obtener cantidad de productos en el carrito
+    carrito_cantidad = 0
+    if request.user.is_authenticated:
+        carrito = request.session.get('carrito', {})
+        carrito_cantidad = sum(item['cantidad'] for item in carrito.values())
+    
+    context = {
+        'platos_destacados': platos_destacados,
+        'resenas_destacadas': resenas_destacadas,
+        'carrito_cantidad': carrito_cantidad,
+    }
+    
+    return render(request, 'usuarios/index.html', context)
 
 
 def password_reset_request(request):
@@ -142,4 +167,4 @@ def password_reset_confirm(request, uidb64, token):
     else:
         messages.error(request, 
             'El enlace de restablecimiento es inválido o ha expirado.')
-        return redirect('usuarios:password_reset_request') 
+        return redirect('usuarios:password_reset_request')

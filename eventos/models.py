@@ -3,17 +3,20 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from decimal import Decimal
+from config.media_settings import validate_evento_image
 
 Usuario = get_user_model()
 
 class TipoEvento(models.Model):
-    """Tipos de eventos que ofrece el restaurante"""
+    """Tipos de eventos disponibles"""
+    
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
     precio_base = models.DecimalField(max_digits=10, decimal_places=2)
     capacidad_minima = models.PositiveIntegerField(default=10)
     capacidad_maxima = models.PositiveIntegerField(default=100)
     duracion_estimada = models.PositiveIntegerField(help_text="Duración en horas")
+    imagen = models.ImageField(upload_to='eventos/tipos/', blank=True, null=True, help_text="Imagen representativa del tipo de evento")
     activo = models.BooleanField(default=True)
     
     class Meta:
@@ -44,6 +47,7 @@ class MenuEvento(models.Model):
     descripcion = models.TextField()
     precio_por_persona = models.DecimalField(max_digits=10, decimal_places=2)
     platos = models.TextField(help_text="Lista de platos incluidos")
+    imagen = models.ImageField(upload_to='eventos/menus/', blank=True, null=True, help_text="Imagen del menú")
     bebidas_incluidas = models.BooleanField(default=False)
     postre_incluido = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
